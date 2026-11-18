@@ -1,0 +1,3162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>選択体育 試合記録・評価シート</title>
+    <style>
+        /* ==========================================
+           完全内蔵スタンドアロンCSS (Teams / スマホ完全対応)
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+        @media (max-width: 640px) {
+            html {
+                font-size: 17px;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            line-height: 1.5;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+        button, input, select, textarea {
+            font-family: inherit;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* トースト通知 */
+        #toast-container {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 92%;
+            max-width: 420px;
+            pointer-events: none;
+        }
+        .toast-item {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 11px 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-error {
+            background-color: #e11d48;
+        }
+
+        /* ==========================================
+           1. ログイン画面
+           ========================================== */
+        #login-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #10b981 100%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .login-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 46px 20px 22px;
+            text-align: center;
+            position: relative;
+        }
+        .login-top-bar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-rules-top {
+            background-color: #38bdf8;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+        .btn-teacher-top {
+            background-color: #fbbf24;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+        .login-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .login-title {
+            font-size: 20px;
+            font-weight: 900;
+        }
+        .login-sub {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .login-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .class-btn {
+            padding: 11px 4px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            color: #475569;
+            font-weight: 800;
+            font-size: 15px;
+            text-align: center;
+        }
+        .class-btn.active {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+        .select-box, .input-box {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 2px solid #cbd5e1;
+            color: #0f172a;
+            font-weight: 700;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 15px;
+        }
+        .select-box:focus, .input-box:focus {
+            outline: none;
+            border-color: #2563eb;
+            background-color: #ffffff;
+        }
+        .custom-fields {
+            background-color: #f8fafc;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .btn-primary-full {
+            width: 100%;
+            background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 16px;
+            padding: 14px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            text-align: center;
+        }
+        .demo-area {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+        }
+        .demo-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .btn-demo {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #059669;
+            background-color: #ecfdf5;
+            padding: 7px 14px;
+            border-radius: 999px;
+        }
+
+        /* ==========================================
+           2. メイン画面（スマホ最適化 2段ヘッダー）
+           ========================================== */
+        #app-screen {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .app-header {
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 4px 8px 6px;
+        }
+        .header-top-actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #f1f5f9;
+            overflow-x: auto;
+        }
+        .header-student-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+        .header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .header-student-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .header-class-select {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid #93c5fd;
+            flex-shrink: 0;
+        }
+        .header-num {
+            font-size: 13px;
+            font-weight: 800;
+            color: #475569;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .header-name {
+            font-size: 16px;
+            font-weight: 900;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ミニマルで白余白なしのボタン */
+        .btn-hdr {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 4px 7px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1;
+            white-space: nowrap;
+            flex-shrink: 0;
+            border: none;
+        }
+        .btn-hdr-rules {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+        .btn-hdr-send {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-hdr-csv {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-hdr-cfg {
+            background-color: #fbbf24;
+            color: #0f172a;
+        }
+        .btn-hdr-user {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .main-container {
+            padding: 12px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+        }
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-heading {
+            font-size: 14px;
+            font-weight: 900;
+            color: #334155;
+        }
+
+        /* 合計評価点バナー */
+        .score-banner {
+            background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .score-banner-left {
+            flex: 1;
+            min-width: 0;
+        }
+        .score-banner-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .score-banner-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .score-val-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin: 2px 0;
+            white-space: nowrap;
+        }
+        .score-banner-val {
+            font-size: 32px;
+            font-weight: 900;
+            color: #34d399;
+            line-height: 1;
+        }
+        .score-banner-max {
+            font-size: 12px;
+            color: #cbd5e1;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .score-banner-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+        .grade-pill {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #6ee7b7;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* 統計カード */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .stat-box-blue {
+            background-color: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 0;
+        }
+        .stat-box-green {
+            background-color: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 14px;
+            padding: 10px;
+            min-width: 0;
+        }
+        .stat-box-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .stat-title-blue { font-size: 11px; font-weight: 800; color: #1e40af; white-space: nowrap; }
+        .stat-title-green { font-size: 11px; font-weight: 800; color: #065f46; white-space: nowrap; }
+        .stat-pt-blue { background-color: #2563eb; color: #fff; font-size: 10px; font-weight: 900; padding: 1px 5px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; }
+        .stat-pt-green { background-color: #059669; color: #fff; font-size: 10px; font-weight: 900; padding: 1px 5px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; }
+        .stat-num-row {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+            white-space: nowrap;
+            line-height: 1.1;
+        }
+        .stat-big-num { font-size: 24px; font-weight: 900; color: #0f172a; }
+        .stat-unit { font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; }
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(15, 23, 42, 0.1);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-fill-blue { height: 100%; background-color: #2563eb; }
+        .progress-fill-green { height: 100%; background-color: #10b981; }
+        .stat-foot { font-size: 10px; font-weight: 700; color: #64748b; text-align: right; margin-top: 3px; white-space: nowrap; }
+
+        /* リーダー表示 */
+        .leader-section {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .leader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .leader-title { font-size: 12px; font-weight: 900; color: #475569; }
+        .btn-refresh-small { font-size: 11px; font-weight: 800; color: #2563eb; background: #eff6ff; padding: 2px 8px; border-radius: 6px; }
+        .leader-card-amber { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 8px; }
+        .leader-card-indigo { background: #e0e7ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: 8px; }
+        .leader-tag-amber { font-size: 10px; font-weight: 800; color: #b45309; }
+        .leader-tag-indigo { font-size: 10px; font-weight: 800; color: #3730a3; }
+        .leader-name { font-size: 13px; font-weight: 900; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .leader-val-amber { font-size: 12px; font-weight: 800; color: #d97706; }
+        .leader-val-indigo { font-size: 12px; font-weight: 800; color: #4f46e5; }
+
+        /* ルールバナーボタン */
+        .rules-banner-btn {
+            width: 100%;
+            padding: 12px 14px;
+            background: linear-gradient(90deg, #e0f2fe 0%, #eff6ff 100%);
+            border: 1px solid #7dd3fc;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 900;
+            color: #0369a1;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 5px rgba(3, 105, 161, 0.06);
+        }
+
+        /* フィルター・検索・名簿リスト */
+        .filter-bar {
+            display: flex;
+            background-color: #e2e8f0;
+            padding: 3px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .filter-tab {
+            flex: 1;
+            padding: 7px 4px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+            text-align: center;
+        }
+        .filter-tab.active {
+            background-color: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .search-input {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .roster-item-played {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+            cursor: pointer;
+        }
+        .roster-item-unplayed {
+            background-color: rgba(255, 255, 255, 0.75);
+            border: 1px dashed #94a3b8;
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+            cursor: pointer;
+        }
+        .roster-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1;
+        }
+        .num-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .student-name {
+            font-size: 14px;
+            font-weight: 900;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sport-tag {
+            font-size: 10px;
+            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 1px 5px;
+            border-radius: 5px;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .score-detail-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            margin-top: 1px;
+            white-space: nowrap;
+        }
+        .res-badge-win {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background-color: #10b981;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .res-badge-lose {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background-color: #f43f5e;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .btn-input-pill {
+            font-size: 11px;
+            font-weight: 800;
+            color: #2563eb;
+            background-color: #eff6ff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* 下部固定FAB */
+        .fab-wrapper {
+            position: fixed;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            padding: 0 12px;
+            z-index: 30;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .fab-btn {
+            pointer-events: auto;
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 15px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+            text-align: center;
+        }
+
+        /* ==========================================
+           3. モーダル共通スタイル
+           ========================================== */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.68);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+        .modal-card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 520px;
+            border-radius: 22px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .modal-head {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 13px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .modal-head-title {
+            font-size: 14px;
+            font-weight: 900;
+        }
+        .modal-close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 13px;
+        }
+        .modal-body {
+            padding: 14px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-foot {
+            padding: 10px 14px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ==========================================
+           4. ルール解説モーダル専用スタイル
+           ========================================== */
+        .rule-nav-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            background-color: #e2e8f0;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .rule-nav-btn {
+            padding: 8px 2px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 900;
+            color: #475569;
+            text-align: center;
+        }
+        .rule-nav-btn.active {
+            background-color: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .rule-section-card {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .rule-section-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 900;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .rule-list {
+            list-style: none;
+        }
+        .rule-list li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #1e293b;
+        }
+        .rule-list li:last-child {
+            margin-bottom: 0;
+        }
+        .rule-num-circle {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+        .rule-sub-bullets {
+            margin-top: 5px;
+            padding: 7px 9px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #10b981;
+            font-size: 11px;
+        }
+        .rule-sub-bullets p {
+            margin-bottom: 4px;
+        }
+        .rule-sub-bullets p:last-child {
+            margin-bottom: 0;
+        }
+        .diagram-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 6px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .diagram-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+        .diagram-caption-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4px;
+            margin-top: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #334155;
+        }
+
+        /* スコア入力ステッパー */
+        .seg-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            background-color: #f1f5f9;
+            padding: 3px;
+            border-radius: 10px;
+        }
+        .seg-btn {
+            padding: 7px 4px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+        }
+        .seg-btn.active-blue {
+            background-color: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .seg-btn.active-green {
+            background-color: #ffffff;
+            color: #059669;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .set-row {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 7px 9px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+        }
+        .set-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: #475569;
+            width: 50px;
+        }
+        .stepper-wrap {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stepper-box {
+            display: flex;
+            align-items: center;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 2px;
+        }
+        .step-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background-color: #ffffff;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .step-input {
+            width: 36px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 900;
+            border: none;
+            background: transparent;
+            color: #1d4ed8;
+        }
+        .preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+            margin-bottom: 12px;
+        }
+        .preset-btn {
+            font-size: 11px;
+            font-weight: 800;
+            background-color: #f1f5f9;
+            color: #334155;
+            padding: 5px 9px;
+            border-radius: 7px;
+        }
+        .res-btn-win {
+            padding: 11px;
+            border-radius: 12px;
+            border: 2px solid #10b981;
+            background-color: #ecfdf5;
+            color: #047857;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        .res-btn-lose {
+            padding: 11px;
+            border-radius: 12px;
+            border: 2px solid #f43f5e;
+            background-color: #fff1f2;
+            color: #be123c;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        .res-btn-inactive {
+            padding: 11px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background-color: #ffffff;
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .rules-table td {
+            padding: 4px 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- トースト通知エリア -->
+    <div id="toast-container"></div>
+
+    <!-- ==========================================
+         1. ログイン・学生選択画面
+         ========================================== -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-top-bar">
+                    <button type="button" onclick="openRulesModal('all')" class="btn-rules-top" title="卓球・バドミントンのルール確認">
+                        📖 ルール解説
+                    </button>
+                    <button type="button" onclick="openSettingsModal()" class="btn-teacher-top" title="Googleフォーム連携設定">
+                        ⚙ 教員設定
+                    </button>
+                </div>
+                <div class="login-badge">PHYSICAL EDUCATION</div>
+                <h1 class="login-title">選択体育 試合記録・評価シート</h1>
+                <p class="login-sub">卓球・バドミントン スコア管理アプリ</p>
+            </div>
+
+            <div class="login-body">
+                <!-- 1. クラス選択 -->
+                <div class="form-group">
+                    <label class="form-label">1. クラスを選択</label>
+                    <div class="class-grid">
+                        <button type="button" onclick="selectLoginClass('2M')" id="btn-class-2M" class="class-btn active">2M</button>
+                        <button type="button" onclick="selectLoginClass('2E')" id="btn-class-2E" class="class-btn">2E</button>
+                        <button type="button" onclick="selectLoginClass('2J')" id="btn-class-2J" class="class-btn">2J</button>
+                        <button type="button" onclick="selectLoginClass('2C')" id="btn-class-2C" class="class-btn">2C</button>
+                        <button type="button" onclick="selectLoginClass('4M')" id="btn-class-4M" class="class-btn">4M</button>
+                        <button type="button" onclick="selectLoginClass('4E')" id="btn-class-4E" class="class-btn">4E</button>
+                        <button type="button" onclick="selectLoginClass('4J')" id="btn-class-4J" class="class-btn">4J</button>
+                        <button type="button" onclick="selectLoginClass('4C')" id="btn-class-4C" class="class-btn">4C</button>
+                    </div>
+                </div>
+
+                <!-- 2. 自分の名前選択 -->
+                <div class="form-group">
+                    <label for="login-student-select" class="form-label">2. 自分の出席番号・氏名を選択</label>
+                    <select id="login-student-select" onchange="toggleCustomNameInput()" class="select-box">
+                        <!-- JSで名簿を生成 -->
+                    </select>
+                </div>
+
+                <!-- 手動入力フィールド -->
+                <div id="custom-student-fields" class="custom-fields hidden">
+                    <div style="margin-bottom: 8px;">
+                        <label class="form-label">出席番号</label>
+                        <input type="number" id="custom-number" placeholder="例: 41" class="input-box">
+                    </div>
+                    <div>
+                        <label class="form-label">氏名（フルネーム）</label>
+                        <input type="text" id="custom-name" placeholder="例: 山田 太郎" class="input-box">
+                    </div>
+                </div>
+
+                <!-- 開始ボタン -->
+                <button type="button" onclick="handleLogin()" class="btn-primary-full">
+                    シートを開く →
+                </button>
+
+                <!-- デモ用クイックスタート -->
+                <div class="demo-area">
+                    <p class="demo-hint">先生・動作確認用ショートカット</p>
+                    <button type="button" onclick="startDemoMode()" class="btn-demo">
+                        ✨ サンプルデータを入れて試す
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. メインアプリケーション画面
+         ========================================== -->
+    <div id="app-screen" class="hidden">
+        
+        <!-- ヘッダー（2段構成：ミニマルで重複なしの操作ボタン群） -->
+        <header class="app-header">
+            <div class="header-top-actions-bar">
+                <button type="button" onclick="openRulesModal('all')" class="btn-hdr btn-hdr-rules" title="ルール解説">📖 ルール</button>
+                <button type="button" onclick="submitToGoogleForm(false)" class="btn-hdr btn-hdr-send" title="教員へ再送信">☁ 再送信</button>
+                <button type="button" onclick="exportCSV()" class="btn-hdr btn-hdr-csv" title="CSVダウンロード">CSV</button>
+                <button type="button" onclick="openSettingsModal()" class="btn-hdr btn-hdr-cfg" title="教員設定">⚙ 設定</button>
+                <button type="button" onclick="logout()" class="btn-hdr btn-hdr-user" title="生徒切替">切替</button>
+            </div>
+            <div class="header-student-row">
+                <div class="header-icon">🏓</div>
+                <div class="header-student-info">
+                    <select id="header-class-select" onchange="switchClassInApp(this.value)" class="header-class-select" title="クラス切替">
+                        <option value="2M">2M</option>
+                        <option value="2E">2E</option>
+                        <option value="2J">2J</option>
+                        <option value="2C">2C</option>
+                        <option value="4M">4M</option>
+                        <option value="4E">4E</option>
+                        <option value="4J">4J</option>
+                        <option value="4C">4C</option>
+                    </select>
+                    <span id="header-number" class="header-num">1番</span>
+                    <h1 id="header-name" class="header-name">浅岡　武琉</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-container">
+
+            <!-- ダッシュボード -->
+            <section class="card">
+                <div class="card-top-row">
+                    <h2 class="card-heading">📊 現在の評価ステータス</h2>
+                </div>
+
+                <!-- 合計評価点メイン表示 -->
+                <div class="score-banner">
+                    <div class="score-banner-left">
+                        <p class="score-banner-label">現在の評価点（10点満点）</p>
+                        <div class="score-val-row">
+                            <span id="stat-total-score" class="score-banner-val">2</span>
+                            <span class="score-banner-max">/ 10 点</span>
+                        </div>
+                        <p class="score-banner-sub">
+                            試合 <span id="stat-match-pt-sub" style="color:#fff;font-weight:800;">1</span>点 ＋ 勝利 <span id="stat-win-pt-sub" style="color:#fff;font-weight:800;">1</span>点
+                        </p>
+                    </div>
+                    <div class="score-banner-right">
+                        <div id="grade-badge" class="grade-pill">スタート！</div>
+                    </div>
+                </div>
+
+                <!-- 試合数 & 勝利数 カード -->
+                <div class="stat-grid">
+                    <div class="stat-box-blue">
+                        <div class="stat-box-head">
+                            <span class="stat-title-blue">総試合数 (6割)</span>
+                            <span class="stat-pt-blue"><span id="stat-match-pt">1</span> / 6点</span>
+                        </div>
+                        <div class="stat-num-row">
+                            <span id="stat-total-matches" class="stat-big-num">0</span>
+                            <span class="stat-unit">試合</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="bar-matches" class="progress-fill-blue" style="width: 5%;"></div>
+                        </div>
+                        <p class="stat-foot">51試合以上で満点</p>
+                    </div>
+
+                    <div class="stat-box-green">
+                        <div class="stat-box-head">
+                            <span class="stat-title-green">総勝利数 (4割)</span>
+                            <span class="stat-pt-green"><span id="stat-win-pt">1</span> / 4点</span>
+                        </div>
+                        <div class="stat-num-row">
+                            <span id="stat-total-wins" class="stat-big-num">0</span>
+                            <span class="stat-unit">勝 <span id="stat-win-rate">(0%)</span></span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="bar-wins" class="progress-fill-green" style="width: 5%;"></div>
+                        </div>
+                        <p class="stat-foot">26勝以上で満点</p>
+                    </div>
+                </div>
+
+                <!-- クラス内トップリーダー -->
+                <div class="leader-section">
+                    <div class="leader-header">
+                        <span class="leader-title">👑 <span id="leader-class-label">2M</span> クラス現在のトップ</span>
+                        <button type="button" onclick="refreshClassLeaders(true)" class="btn-refresh-small">↻ 最新化</button>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="leader-card-amber">
+                            <p class="leader-tag-amber">🔥 最多試合数</p>
+                            <p id="leader-matches-name" class="leader-name">--</p>
+                            <p id="leader-matches-val" class="leader-val-amber">0 試合</p>
+                        </div>
+                        <div class="leader-card-indigo">
+                            <p class="leader-tag-indigo">🏅 最多勝利数</p>
+                            <p id="leader-wins-name" class="leader-name">--</p>
+                            <p id="leader-wins-val" class="leader-val-indigo">0 勝</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ルール解説クイックバナー -->
+            <button type="button" onclick="openRulesModal('all')" class="rules-banner-btn">
+                <span>📖 卓球・バドミントンのルール＆コート図解を見る</span>
+                <span>開く →</span>
+            </button>
+
+            <!-- 対戦相手一覧・履歴セクション -->
+            <section>
+                <div class="card-top-row">
+                    <h2 style="font-size:15px;font-weight:900;color:#0f172a;">📋 対戦シート一覧</h2>
+                </div>
+
+                <!-- フィルタータブ -->
+                <div class="filter-bar">
+                    <button type="button" onclick="setFilter('all')" id="filter-all" class="filter-tab active">すべて</button>
+                    <button type="button" onclick="setFilter('unplayed')" id="filter-unplayed" class="filter-tab">未対戦 (<span id="count-unplayed">0</span>)</button>
+                    <button type="button" onclick="setFilter('played')" id="filter-played" class="filter-tab">対戦済み (<span id="count-played">0</span>)</button>
+                </div>
+
+                <!-- 検索バー -->
+                <input type="text" id="search-input" oninput="renderRoster()" placeholder="🔍 名前や出席番号で検索..." class="search-input">
+
+                <!-- クラス名簿リスト -->
+                <div id="roster-list"></div>
+
+                <!-- Free対戦セクション -->
+                <div style="margin-top: 16px;">
+                    <div class="card-top-row">
+                        <h3 style="font-size:13px;font-weight:900;color:#334155;">🟡 Free対戦記録（同じ人と何度でもOK）</h3>
+                        <button type="button" onclick="openMatchModal(null, true)" class="btn-input-pill">+ Free追加</button>
+                    </div>
+                    <div id="free-list"></div>
+                </div>
+
+                <!-- データ管理フッター -->
+                <div style="margin-top:24px;padding-top:14px;border-top:1px solid #cbd5e1;text-align:center;">
+                    <p style="font-size:11px;color:#64748b;margin-bottom:8px;">試合を記録すると自動的に教員へ送信・端末へ保存されます</p>
+                    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;">
+                        <button type="button" onclick="submitToGoogleForm(false)" class="btn-hdr btn-hdr-send" style="padding:6px 12px;font-size:12px;">☁ 手動で未送信データを再送信</button>
+                        <button type="button" onclick="loadSampleDataForCurrentUser()" class="btn-demo">✨ サンプル読込</button>
+                        <button type="button" onclick="openConfirmResetModal()" style="font-size:12px;font-weight:800;color:#e11d48;background:#ffe4e6;padding:7px 12px;border-radius:9px;">🗑 記録リセット</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 下部固定：クイック入力ボタン -->
+        <div class="fab-wrapper">
+            <button type="button" onclick="openMatchModal()" class="fab-btn">
+                ＋ 試合結果を入力する
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         3. 📖 ルール解説モーダル（卓球・バドミントン・SVGコート図解・評価基準）
+         ========================================== -->
+    <div id="rules-modal" class="modal-backdrop hidden">
+        <div class="modal-card" style="max-width: 560px;">
+            <div class="modal-head">
+                <h3 class="modal-head-title">📖 選択体育 ルール解説・評価基準</h3>
+                <button type="button" onclick="closeRulesModal()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body" style="background-color:#f8fafc;">
+                <!-- カテゴリ切替タブ -->
+                <div class="rule-nav-bar">
+                    <button type="button" onclick="switchRuleTab('all')" id="rule-tab-all" class="rule-nav-btn active">すべて表示</button>
+                    <button type="button" onclick="switchRuleTab('tt')" id="rule-tab-tt" class="rule-nav-btn">🏓 卓球ルール</button>
+                    <button type="button" onclick="switchRuleTab('bd')" id="rule-tab-bd" class="rule-nav-btn">🏸 バドミントン</button>
+                </div>
+
+                <!-- 🏓 卓球のルール -->
+                <div id="rule-sec-tt" class="rule-section-card">
+                    <div class="rule-section-header" style="color:#1d4ed8;border-color:#bfdbfe;">
+                        <span>🏓 体育で採用する卓球のルール</span>
+                    </div>
+                    <ul class="rule-list">
+                        <li>
+                            <span class="rule-num-circle" style="background:#2563eb;">1</span>
+                            じゃんけんで最初のサーブを決める。サーブは<strong>2球交代</strong>。ただし、デュースになった場合（10対10）は<strong>1本交代</strong>。デュースの場合は<strong>2点差がつくまで</strong>行う。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#2563eb;">2</span>
+                            サーブがネットに当たって相手コートに入ったらやり直し（レット）。ネットに当たって自分のコートに落ちたら相手の得点。<br>
+                            サーブは<strong>自分のコートに一回、相手のコートに一回</strong>バウンドさせる。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#2563eb;">3</span>
+                            卓球は<strong>ボレー無し</strong>（必ず自分のコートで1バウンドしてから打ち返す）。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#2563eb;">4</span>
+                            ダブルスの場合は<strong>必ずペアと交互に打ち返す</strong>こと。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#2563eb;">5</span>
+                            ダブルスの場合のサーブは<strong>必ず対角線の範囲内に打つ</strong>こと。（シングルスの場合のサーブはどこに打っても良い）
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 🏸 バドミントンのルール -->
+                <div id="rule-sec-bd" class="rule-section-card">
+                    <div class="rule-section-header" style="color:#047857;border-color:#a7f3d0;">
+                        <span>🏸 体育で採用するバドミントンのルール</span>
+                    </div>
+                    <ul class="rule-list">
+                        <li>
+                            <span class="rule-num-circle" style="background:#059669;">1</span>
+                            じゃんけんで最初のサーブを決める。その後は<strong>得点を取った方がサーブをする</strong>。デュースになった場合（10対10）は<strong>2点差がつくまで</strong>行う。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#059669;">2</span>
+                            サーブを打つ位置は<strong>自分の今の得点が偶数なら右、奇数なら左</strong>から打つ。サーブの有効範囲は下の図を参照。
+                        </li>
+                        <li>
+                            <span class="rule-num-circle" style="background:#059669;">3</span>
+                            ダブルスのサーブの位置変更の仕方は下を参照：
+                            <div class="rule-sub-bullets">
+                                <p>・サービスを打つ場所は、<strong>自分達の得点が偶数なら右、奇数なら左</strong>から打つ。</p>
+                                <p>・サービスをしてラリーに<strong>勝ったら、同じ人は左右を変えて続けてサービス</strong>。</p>
+                                <p>・サービスをしてラリーに<strong>負けたら、相手にサービスが移動し、そのラリーが始まった時の位置のまま</strong>、相手の得点が偶数なら右、奇数なら左のプレーヤーがサービスを行う。</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- SVG図解 1：シングルスの場合 -->
+                    <div class="diagram-box">
+                        <p class="diagram-title">シングルス の場合</p>
+                        <svg viewBox="0 0 620 270" width="100%" style="max-width:520px;height:auto;display:block;margin:0 auto;">
+                            <!-- 1. 左コート：インコートエリア -->
+                            <g transform="translate(10, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+                                <rect x="16" y="0" width="148" height="250" fill="#e2e8f0"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                            </g>
+
+                            <!-- 2. 中央コート：右（偶数）からのサービス・レシーブ -->
+                            <g transform="translate(220, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+                                <rect x="16" y="0" width="74" height="85" fill="#94a3b8"/>
+                                <rect x="90" y="165" width="74" height="85" fill="#94a3b8"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                                <text x="53" y="34" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">レシーバー</text>
+                                <circle cx="53" cy="52" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="112" cy="188" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <text x="127" y="212" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">サーバー</text>
+                                <defs>
+                                    <marker id="arrow-s1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                        <path d="M0,0 L8,4 L0,8 Z" fill="#0f172a"/>
+                                    </marker>
+                                </defs>
+                                <path d="M110,178 Q105,115 62,62" fill="none" stroke="#0f172a" stroke-width="2.5" marker-end="url(#arrow-s1)"/>
+                            </g>
+
+                            <!-- 3. 右コート：左（奇数）からのサービス・レシーブ -->
+                            <g transform="translate(430, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+                                <rect x="90" y="0" width="74" height="85" fill="#94a3b8"/>
+                                <rect x="16" y="165" width="74" height="85" fill="#94a3b8"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                                <text x="127" y="34" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">レシーバー</text>
+                                <circle cx="127" cy="52" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="68" cy="188" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <text x="53" y="212" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">サーバー</text>
+                                <path d="M70,178 Q75,115 118,62" fill="none" stroke="#0f172a" stroke-width="2.5" marker-end="url(#arrow-s1)"/>
+                            </g>
+                        </svg>
+                        <div class="diagram-caption-row">
+                            <div>インコートエリア<br><span style="font-size:9px;color:#64748b;">(グレー部分)</span></div>
+                            <div>サービス・レシーブエリア（濃グレー部分）<br><span style="font-size:9px;color:#64748b;">中央：偶数(右) ／ 右：奇数(左)</span></div>
+                        </div>
+                    </div>
+
+                    <!-- SVG図解 2：ダブルスの場合 -->
+                    <div class="diagram-box">
+                        <p class="diagram-title">ダブルス の場合</p>
+                        <svg viewBox="0 0 620 270" width="100%" style="max-width:520px;height:auto;display:block;margin:0 auto;">
+                            <!-- 1. 左コート：インコートエリア -->
+                            <g transform="translate(10, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#e2e8f0" stroke="#64748b" stroke-width="2.5"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                            </g>
+
+                            <!-- 2. 中央コート：ダブルス右（偶数） -->
+                            <g transform="translate(220, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+                                <rect x="0" y="18" width="90" height="67" fill="#94a3b8"/>
+                                <rect x="90" y="165" width="90" height="67" fill="#94a3b8"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                                <text x="48" y="34" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">レシーバー</text>
+                                <circle cx="48" cy="52" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="90" cy="42" r="8" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-dasharray="2,2"/>
+                                <circle cx="112" cy="188" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="90" cy="208" r="8" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-dasharray="2,2"/>
+                                <text x="132" y="212" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">サーバー</text>
+                                <path d="M110,178 Q105,115 57,62" fill="none" stroke="#0f172a" stroke-width="2.5" marker-end="url(#arrow-s1)"/>
+                            </g>
+
+                            <!-- 3. 右コート：ダブルス左（奇数） -->
+                            <g transform="translate(430, 8)">
+                                <rect x="0" y="0" width="180" height="250" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+                                <rect x="90" y="18" width="90" height="67" fill="#94a3b8"/>
+                                <rect x="0" y="165" width="90" height="67" fill="#94a3b8"/>
+                                <line x1="16" y1="0" x2="16" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="164" y1="0" x2="164" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="18" x2="180" y2="18" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="232" x2="180" y2="232" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="85" x2="180" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="0" y1="165" x2="180" y2="165" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="0" x2="90" y2="85" stroke="#64748b" stroke-width="2"/>
+                                <line x1="90" y1="165" x2="90" y2="250" stroke="#64748b" stroke-width="2"/>
+                                <line x1="-4" y1="125" x2="184" y2="125" stroke="#475569" stroke-width="3" stroke-dasharray="6,4"/>
+                                <text x="132" y="34" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">レシーバー</text>
+                                <circle cx="132" cy="52" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="90" cy="42" r="8" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-dasharray="2,2"/>
+                                <circle cx="68" cy="188" r="8" fill="#475569" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="90" cy="208" r="8" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-dasharray="2,2"/>
+                                <text x="48" y="212" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">サーバー</text>
+                                <path d="M70,178 Q75,115 123,62" fill="none" stroke="#0f172a" stroke-width="2.5" marker-end="url(#arrow-s1)"/>
+                            </g>
+                        </svg>
+                        <div class="diagram-caption-row">
+                            <div>インコートエリア<br><span style="font-size:9px;color:#64748b;">(コート全体)</span></div>
+                            <div>サービス・レシーブエリア（濃グレー部分）<br><span style="font-size:9px;color:#64748b;">手前ラインまで・横は外側まで有効</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📊 試合形式＆評価点配分 -->
+                <div id="rule-sec-eval" class="rule-section-card" style="margin-bottom:0;">
+                    <div class="rule-section-header" style="color:#0f172a;">
+                        <span>📊 授業での試合形式・評価点基準（10点満点）</span>
+                    </div>
+                    <div style="font-size:11px;color:#334155;margin-bottom:8px;">
+                        <p>・<strong>11点先取</strong>（10-10は2点差がつくまでデュース）</p>
+                        <p>・<strong>2セット先取</strong>で勝利（シングルス・ダブルス可）</p>
+                        <p>・ダブルスは<strong>相手ペア2人分の欄を同時に記録OK</strong></p>
+                    </div>
+                    <div class="stat-grid">
+                        <div style="background:#eff6ff;padding:8px;border-radius:10px;">
+                            <p style="font-weight:900;color:#1d4ed8;font-size:11px;margin-bottom:4px;">【試合数：6点満点】</p>
+                            <table class="rules-table">
+                                <tr><td>0〜10試合</td><td style="text-align:right;font-weight:800;">1点</td></tr>
+                                <tr><td>11〜20試合</td><td style="text-align:right;font-weight:800;">2点</td></tr>
+                                <tr><td>21〜30試合</td><td style="text-align:right;font-weight:800;">3点</td></tr>
+                                <tr><td>31〜40試合</td><td style="text-align:right;font-weight:800;">4点</td></tr>
+                                <tr><td>41〜50試合</td><td style="text-align:right;font-weight:800;">5点</td></tr>
+                                <tr><td>51試合以上</td><td style="text-align:right;font-weight:800;color:#1d4ed8;">6点</td></tr>
+                            </table>
+                        </div>
+                        <div style="background:#ecfdf5;padding:8px;border-radius:10px;">
+                            <p style="font-weight:900;color:#047857;font-size:11px;margin-bottom:4px;">【勝利数：4点満点】</p>
+                            <table class="rules-table">
+                                <tr><td>0〜5勝</td><td style="text-align:right;font-weight:800;">1点</td></tr>
+                                <tr><td>6〜15勝</td><td style="text-align:right;font-weight:800;">2点</td></tr>
+                                <tr><td>16〜25勝</td><td style="text-align:right;font-weight:800;">3点</td></tr>
+                                <tr><td>26勝以上</td><td style="text-align:right;font-weight:800;color:#047857;">4点</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-foot">
+                <button type="button" onclick="closeRulesModal()" class="btn-primary-full" style="padding:11px;font-size:13px;">
+                    確認して閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         4. 試合結果 クイック入力モーダル
+         ========================================== -->
+    <div id="match-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 id="modal-title" class="modal-head-title">試合結果の入力</h3>
+                <button type="button" onclick="closeMatchModal()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- 種目 & 形式 -->
+                <div class="stat-grid" style="margin-bottom: 12px;">
+                    <div>
+                        <label class="form-label">種目</label>
+                        <div class="seg-group">
+                            <button type="button" onclick="setModalSport('卓球')" id="btn-sport-tt" class="seg-btn active-blue">🏓 卓球</button>
+                            <button type="button" onclick="setModalSport('バドミントン')" id="btn-sport-bd" class="seg-btn">🏸 バド</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">形式</label>
+                        <div class="seg-group">
+                            <button type="button" onclick="setModalFormat('シングルス')" id="btn-fmt-single" class="seg-btn active-green">シングルス</button>
+                            <button type="button" onclick="setModalFormat('ダブルス')" id="btn-fmt-double" class="seg-btn">ダブルス</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 対戦相手選択 -->
+                <div class="custom-fields" style="margin-bottom: 12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label class="form-label" style="margin:0;color:#0f172a;">対戦相手 1</label>
+                        <label style="font-size:11px;font-weight:800;color:#d97706;">
+                            <input type="checkbox" id="modal-is-free" onchange="toggleFreeModeInModal()"> Free枠として記録
+                        </label>
+                    </div>
+                    <select id="modal-opponent-1" class="select-box"></select>
+
+                    <div id="modal-opponent-2-container" class="hidden" style="margin-top:8px;padding-top:8px;border-top:1px solid #cbd5e1;">
+                        <label class="form-label" style="color:#0f172a;">対戦相手 2（2人分同時に自動記録）</label>
+                        <select id="modal-opponent-2" class="select-box"></select>
+                    </div>
+                </div>
+
+                <!-- スコア入力 -->
+                <div>
+                    <div class="card-top-row" style="margin-bottom:6px;">
+                        <label class="form-label" style="margin:0;color:#0f172a;">セット別スコア（自分 ー 相手）</label>
+                        <span style="font-size:10px;font-weight:800;color:#2563eb;background:#eff6ff;padding:2px 6px;border-radius:5px;">11点・2セット先取</span>
+                    </div>
+
+                    <!-- 1セット目 -->
+                    <div class="set-row">
+                        <span class="set-label">1セット</span>
+                        <div class="stepper-wrap">
+                            <div class="stepper-box">
+                                <button type="button" onclick="adjustScore(1, 'my', -1)" class="step-btn">-</button>
+                                <input type="number" id="s1-my" value="11" min="0" max="99" onchange="autoJudgeResult()" class="step-input">
+                                <button type="button" onclick="adjustScore(1, 'my', 1)" class="step-btn">+</button>
+                            </div>
+                            <span style="font-weight:900;color:#94a3b8;">-</span>
+                            <div class="stepper-box">
+                                <button type="button" onclick="adjustScore(1, 'op', -1)" class="step-btn">-</button>
+                                <input type="number" id="s1-op" value="0" min="0" max="99" onchange="autoJudgeResult()" class="step-input" style="color:#334155;">
+                                <button type="button" onclick="adjustScore(1, 'op', 1)" class="step-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2セット目 -->
+                    <div class="set-row">
+                        <span class="set-label">2セット</span>
+                        <div class="stepper-wrap">
+                            <div class="stepper-box">
+                                <button type="button" onclick="adjustScore(2, 'my', -1)" class="step-btn">-</button>
+                                <input type="number" id="s2-my" value="11" min="0" max="99" onchange="autoJudgeResult()" class="step-input">
+                                <button type="button" onclick="adjustScore(2, 'my', 1)" class="step-btn">+</button>
+                            </div>
+                            <span style="font-weight:900;color:#94a3b8;">-</span>
+                            <div class="stepper-box">
+                                <button type="button" onclick="adjustScore(2, 'op', -1)" class="step-btn">-</button>
+                                <input type="number" id="s2-op" value="0" min="0" max="99" onchange="autoJudgeResult()" class="step-input" style="color:#334155;">
+                                <button type="button" onclick="adjustScore(2, 'op', 1)" class="step-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3セット目 -->
+                    <div class="set-row" style="background-color:#f8fafc;">
+                        <span class="set-label" style="color:#64748b;">3セット<br><span style="font-size:9px;">(フル時)</span></span>
+                        <div class="stepper-wrap">
+                            <div class="stepper-box" style="background-color:#ffffff;border:1px solid #e2e8f0;">
+                                <button type="button" onclick="adjustScore(3, 'my', -1)" class="step-btn" style="background:#f1f5f9;">-</button>
+                                <input type="number" id="s3-my" placeholder="-" min="0" max="99" onchange="autoJudgeResult()" class="step-input">
+                                <button type="button" onclick="adjustScore(3, 'my', 1)" class="step-btn" style="background:#f1f5f9;">+</button>
+                            </div>
+                            <span style="font-weight:900;color:#94a3b8;">-</span>
+                            <div class="stepper-box" style="background-color:#ffffff;border:1px solid #e2e8f0;">
+                                <button type="button" onclick="adjustScore(3, 'op', -1)" class="step-btn" style="background:#f1f5f9;">-</button>
+                                <input type="number" id="s3-op" placeholder="-" min="0" max="99" onchange="autoJudgeResult()" class="step-input" style="color:#334155;">
+                                <button type="button" onclick="adjustScore(3, 'op', 1)" class="step-btn" style="background:#f1f5f9;">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- クイックプリセット -->
+                    <div class="preset-row">
+                        <button type="button" onclick="applyScorePreset(11, 0, 11, 0)" class="preset-btn">11-0 / 11-0</button>
+                        <button type="button" onclick="applyScorePreset(11, 5, 11, 5)" class="preset-btn">11-5 / 11-5</button>
+                        <button type="button" onclick="applyScorePreset(11, 8, 11, 8)" class="preset-btn">11-8 / 11-8</button>
+                        <button type="button" onclick="applyScorePreset(11, 9, 11, 9)" class="preset-btn">11-9 / 11-9</button>
+                        <button type="button" onclick="applyScorePreset(12, 10, 12, 10)" class="preset-btn">12-10 / 12-10</button>
+                    </div>
+                </div>
+
+                <!-- 勝敗結果 -->
+                <div>
+                    <label class="form-label" style="color:#0f172a;">試合結果（スコアから自動判定）</label>
+                    <div class="stat-grid">
+                        <button type="button" onclick="setModalResult('win')" id="btn-res-win" class="res-btn-win">✓ 勝ち (WIN)</button>
+                        <button type="button" onclick="setModalResult('lose')" id="btn-res-lose" class="res-btn-inactive">✕ 負け (LOSE)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-foot">
+                <button type="button" id="btn-delete-record" onclick="deleteCurrentRecord()" class="hidden" style="padding:11px 14px;border-radius:12px;background:#ffe4e6;color:#be123c;font-weight:800;font-size:12px;">
+                    削除
+                </button>
+                <button type="button" onclick="saveMatchRecord()" class="btn-primary-full" style="padding:12px;font-size:14px;">
+                    この内容で記録する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         5. リセット確認モーダル
+         ========================================== -->
+    <div id="reset-modal" class="modal-backdrop hidden">
+        <div class="modal-card" style="max-width: 360px; padding: 20px; text-align: center;">
+            <div style="font-size: 28px; margin-bottom: 6px;">⚠️</div>
+            <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">記録をすべて消去しますか？</h3>
+            <p style="font-size: 11px; color: #64748b; margin-bottom: 16px;">
+                現在保存されている試合データと評価点がすべて初期状態に戻ります。
+            </p>
+            <div class="stat-grid">
+                <button type="button" onclick="closeConfirmResetModal()" style="padding:11px;border-radius:10px;background:#f1f5f9;font-weight:800;font-size:12px;">キャンセル</button>
+                <button type="button" onclick="executeReset()" style="padding:11px;border-radius:10px;background:#e11d48;color:#fff;font-weight:800;font-size:12px;">消去する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         6. 教員用 Googleフォーム連携設定モーダル
+         ========================================== -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-head-title">⚙ 教員用：Googleフォーム連携設定</h3>
+                <button type="button" onclick="closeSettingsModal()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body" style="font-size: 11px;">
+                <div style="background:#f1f5f9;padding:9px 11px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-weight:800;">現在の連携ステータス:</span>
+                    <span id="settings-status-badge" style="padding:2px 8px;border-radius:999px;font-weight:900;font-size:10px;background:#cbd5e1;">未設定</span>
+                </div>
+
+                <!-- 一括解析エリア -->
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px;margin-bottom:12px;">
+                    <p style="font-weight:900;color:#92400e;margin-bottom:3px;">✨ 事前入力リンクから一括自動セット</p>
+                    <p style="font-size:10px;color:#78350f;margin-bottom:6px;">
+                        Googleフォームの「事前入力したリンクを取得」でコピーしたURLを貼り付けると自動抽出します。
+                    </p>
+                    <textarea id="prefill-url-input" rows="2" placeholder="https://docs.google.com/forms/d/e/.../viewform?usp=pp_url&entry.111=..." class="input-box" style="font-size:11px;margin-bottom:6px;"></textarea>
+                    <button type="button" onclick="parsePrefillUrl()" style="width:100%;background:#fbbf24;color:#0f172a;font-weight:900;padding:9px;border-radius:9px;font-size:12px;">
+                        URLを解析して下の欄に自動入力する
+                    </button>
+                </div>
+
+                <!-- 個別設定 -->
+                <div style="margin-bottom: 8px;">
+                    <label class="form-label">フォーム送信先URL（/formResponse）</label>
+                    <input type="text" id="cfg-form-url" placeholder="https://docs.google.com/forms/d/e/xxxxx/formResponse" class="input-box" style="font-size:11px;padding:7px 9px;">
+                </div>
+                <div class="stat-grid" style="margin-bottom: 8px;">
+                    <div>
+                        <label class="form-label">① クラス (entry ID)</label>
+                        <input type="text" id="cfg-entry-class" placeholder="entry.123456" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                    <div>
+                        <label class="form-label">② 出席番号 (entry ID)</label>
+                        <input type="text" id="cfg-entry-num" placeholder="entry.234567" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                    <div>
+                        <label class="form-label">③ 氏名 (entry ID)</label>
+                        <input type="text" id="cfg-entry-name" placeholder="entry.345678" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                    <div>
+                        <label class="form-label">④ 総試合数 (entry ID)</label>
+                        <input type="text" id="cfg-entry-matches" placeholder="entry.456789" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                    <div>
+                        <label class="form-label">⑤ 勝利数 (entry ID)</label>
+                        <input type="text" id="cfg-entry-wins" placeholder="entry.567890" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                    <div>
+                        <label class="form-label">⑥ 評価点 (entry ID)</label>
+                        <input type="text" id="cfg-entry-score" placeholder="entry.678901" class="input-box" style="font-size:11px;padding:7px 9px;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <label class="form-label">⑦ 試合明細テキスト (entry ID)</label>
+                    <input type="text" id="cfg-entry-details" placeholder="entry.789012" class="input-box" style="font-size:11px;padding:7px 9px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label class="form-label">⑧ クラスランキング共有用 スプレッドシートCSV URL（任意）</label>
+                    <input type="text" id="cfg-sheet-csv-url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" class="input-box" style="font-size:11px;padding:7px 9px;">
+                </div>
+
+                <!-- 配布用URLコピー -->
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:10px;">
+                    <p style="font-weight:900;color:#1e3a8a;margin-bottom:3px;">🔗 学生への配布用リンク生成</p>
+                    <p style="font-size:10px;color:#1e40af;margin-bottom:6px;">
+                        ※ローカルファイル（file://）や一時URL（blob:）は他端末で開けません。Web公開URL（https://...）を入力してください。
+                    </p>
+                    <input type="text" id="cfg-base-page-url" placeholder="例: https://example.netlify.app/pe_score_sheet.html" class="input-box" style="font-size:11px;padding:7px;margin-bottom:6px;">
+                    <button type="button" onclick="copyShareableConfigUrl()" style="width:100%;background:#2563eb;color:#fff;font-weight:900;padding:9px;border-radius:9px;font-size:12px;">
+                        設定済みWeb配布用URLを生成＆コピーする
+                    </button>
+                    <div id="share-url-result-box" class="hidden" style="margin-top:6px;">
+                        <input type="text" id="share-url-output" readonly onclick="this.select()" class="input-box" style="font-size:10px;padding:7px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-foot">
+                <button type="button" onclick="clearFormConfig()" style="padding:11px;border-radius:10px;background:#e2e8f0;font-weight:800;font-size:11px;">クリア</button>
+                <button type="button" onclick="saveFormConfig()" class="btn-primary-full" style="padding:11px;font-size:13px;">この設定を保存する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JavaScript ロジック (全8クラス名簿＆自動送信)
+         ========================================== -->
+    <script>
+        var CLASS_ROSTERS = {
+            '2M': [
+                { num: 1, name: '浅岡　武琉' }, { num: 2, name: '阿部　颯妃' }, { num: 3, name: '阿部　羽純' },
+                { num: 4, name: '荒井　香蔵' }, { num: 5, name: '五十嵐　統真' }, { num: 6, name: '池内　奏太' },
+                { num: 7, name: '砂金　柊羽' }, { num: 8, name: '石川　蓮' }, { num: 9, name: '伊東　玄太' },
+                { num: 10, name: '伊東　拓真' }, { num: 11, name: '伊藤　琉汰' }, { num: 12, name: '岩鼻　竜汰' },
+                { num: 13, name: '氏家　慧人' }, { num: 14, name: '大内　淳平' }, { num: 15, name: '大原　正平' },
+                { num: 16, name: '小笠原　叶虎' }, { num: 17, name: '小野寺　幸大' }, { num: 18, name: '川端　寛人' },
+                { num: 19, name: '菅野　直輝' }, { num: 20, name: '葛巻　利都' }, { num: 21, name: '工藤　丈生' },
+                { num: 22, name: '近藤　圭悟' }, { num: 23, name: '桜井　蒼介' }, { num: 24, name: '佐々木　輝' },
+                { num: 25, name: '佐々木　亮介' }, { num: 26, name: '佐藤　明良' }, { num: 27, name: '佐藤　和斗' },
+                { num: 28, name: '佐藤　佑磨' }, { num: 29, name: '菅原　琥太郎' }, { num: 30, name: '菅原　蓮' },
+                { num: 31, name: '鈴木　瑛心' }, { num: 32, name: '鈴木　滉大' }, { num: 33, name: '髙橋　陽人' },
+                { num: 34, name: '高橋　璃空' }, { num: 35, name: '田中　柊羽' }, { num: 36, name: '田村　慶太朗' },
+                { num: 37, name: '千田　大惺' }, { num: 38, name: '千葉　駿' }, { num: 39, name: '中里　陽' },
+                { num: 40, name: '橋本　航' }, { num: 41, name: '樋口　明星' }, { num: 42, name: '飛田　駿丞' },
+                { num: 43, name: '伏見　琉' }, { num: 44, name: '藤本　大輝' }, { num: 45, name: '持舘　聖文' }
+            ],
+            '2E': [
+                { num: 1, name: '秋田　陵太' }, { num: 2, name: '石戸谷　恒生' }, { num: 3, name: '岩渕　蒼介' },
+                { num: 4, name: '梅田　蒼永' }, { num: 5, name: '大粒来　圭悟' }, { num: 6, name: '奥住　凪人' },
+                { num: 7, name: '小國　雄理' }, { num: 8, name: '小野寺　伸太郎' }, { num: 9, name: '小原　康暉' },
+                { num: 10, name: '小原　友希' }, { num: 11, name: '角舘　千桜' }, { num: 12, name: '川島　優大' },
+                { num: 13, name: '菊池　真言' }, { num: 14, name: '桐田　航輝' }, { num: 15, name: '釘拔　快晴' },
+                { num: 16, name: '齊藤　光希' }, { num: 17, name: '齋藤　颯礼' }, { num: 18, name: '櫻田　樹人' },
+                { num: 19, name: '佐々木　啓太' }, { num: 20, name: '佐竹　玲凰' }, { num: 21, name: '佐藤　奏仁' },
+                { num: 22, name: '佐藤　将吾' }, { num: 23, name: '佐藤　誠太' }, { num: 24, name: '佐藤　拓海' },
+                { num: 25, name: '菅原　潤' }, { num: 26, name: '鈴木　貫太' }, { num: 27, name: '鈴木　波夜斗' },
+                { num: 28, name: '鈴木　陽心' }, { num: 29, name: '高橋　寛太' }, { num: 30, name: '髙橋　雪菜' },
+                { num: 31, name: '田村　悠莉' }, { num: 32, name: '千葉　瑛斗' }, { num: 33, name: '千葉　遥斗' },
+                { num: 34, name: '似内　稔' }, { num: 35, name: '新田　夏生' }, { num: 36, name: 'ハクセル　仁理オディシアス' },
+                { num: 37, name: '濱　克成' }, { num: 38, name: '菱谷　悠斗' }, { num: 39, name: '平野　義燿' },
+                { num: 40, name: '藤原　新' }, { num: 41, name: '松田　颯太' }, { num: 42, name: '三浦　叶翔' },
+                { num: 43, name: '村上　朔哉' }, { num: 44, name: '矢澤　慶大' }, { num: 45, name: '吉田　杷央' },
+                { num: 46, name: '和賀　想真' }
+            ],
+            '2J': [
+                { num: 1, name: '阿部　隼人' }, { num: 2, name: '阿部　光' }, { num: 3, name: '有坂　悠吾' },
+                { num: 4, name: '伊勢　彪琉' }, { num: 5, name: '伊藤　翔' }, { num: 6, name: '伊藤　悠翔' },
+                { num: 7, name: '伊東　珠優' }, { num: 8, name: '伊藤　凜' }, { num: 9, name: '庵原　宏英' },
+                { num: 10, name: '岩渕　瑛太' }, { num: 11, name: '甲木　杏奈' }, { num: 12, name: '菊地　侑斗' },
+                { num: 13, name: '菊地　陽雲' }, { num: 14, name: '木村　太郎' }, { num: 15, name: '小岩　龍煌' },
+                { num: 16, name: '近藤　壱' }, { num: 17, name: '昆野　智隆' }, { num: 18, name: '佐々木　美蕾' },
+                { num: 19, name: '佐藤　史門' }, { num: 20, name: '佐藤　誠那' }, { num: 21, name: '佐藤　青空' },
+                { num: 22, name: '佐藤　晴葵' }, { num: 23, name: '佐藤　伴吏' }, { num: 24, name: '佐藤　光仁' },
+                { num: 25, name: '重良　明慶' }, { num: 26, name: '白沢　陸斗' }, { num: 27, name: '菅原　旭陽' },
+                { num: 28, name: '鈴木　貴大' }, { num: 29, name: '髙橋　快青' }, { num: 30, name: '武田　煌大' },
+                { num: 31, name: '田村　陸' }, { num: 32, name: '千葉　颯人' }, { num: 33, name: '千葉　勇虎' },
+                { num: 34, name: '土屋　咲人' }, { num: 35, name: '長澤　知弥' }, { num: 36, name: '羽上　健太郎' },
+                { num: 37, name: '平野　結希' }, { num: 38, name: '増子　大葵' }, { num: 39, name: '三浦　琉桜' },
+                { num: 40, name: '皆川　隼澄' }, { num: 41, name: '向井　ひかり' }, { num: 42, name: '村上　裕紀' },
+                { num: 43, name: '山﨑　一心' }, { num: 44, name: '大和　佑' }, { num: 45, name: '吉田　大優' }
+            ],
+            '2C': [
+                { num: 1, name: '赤川　東弥' }, { num: 2, name: '浅井　悠李' }, { num: 3, name: '浅香　颯' },
+                { num: 4, name: '飯塚　未羽' }, { num: 5, name: '伊藤　愛子' }, { num: 6, name: '上野　蓮斗' },
+                { num: 7, name: '及川　歩輝' }, { num: 8, name: '小笠原　愁' }, { num: 9, name: '小笹　暁志' },
+                { num: 10, name: '小野寺　奏' }, { num: 11, name: '菊池　寿真' }, { num: 12, name: '菊池　奏人' },
+                { num: 13, name: '菊地　理仁' }, { num: 14, name: '北田　有希奈' }, { num: 15, name: '君塚　友俐' },
+                { num: 16, name: '久慈　一椛' }, { num: 17, name: '工藤　結月' }, { num: 18, name: '熊居　佑仁' },
+                { num: 19, name: '小松　ななみ' }, { num: 20, name: '小松　絆玖' }, { num: 21, name: '坂間　悠生' },
+                { num: 22, name: '櫻井　ゆか' }, { num: 23, name: '佐々木　結奈' }, { num: 24, name: '佐々木　結軌' },
+                { num: 25, name: '佐々木　琉空' }, { num: 26, name: '佐藤　桂登' }, { num: 27, name: '佐藤　純一' },
+                { num: 28, name: '菅原　紗世' }, { num: 29, name: '鈴木　虎哲' }, { num: 30, name: '鈴木　彩友' },
+                { num: 31, name: '鈴木　寛紀' }, { num: 32, name: '髙橋　聖晴' }, { num: 33, name: '髙橋　晴人' },
+                { num: 34, name: '髙橋　瑠衣' }, { num: 35, name: '滝田　智士' }, { num: 36, name: '田中　伶磨' },
+                { num: 37, name: '千葉　大至' }, { num: 38, name: '千葉　琉大' }, { num: 39, name: '手嶋　暁士' },
+                { num: 40, name: '東城　明寿美' }, { num: 41, name: '冨永　怜子' }, { num: 42, name: '永村　祐真' },
+                { num: 43, name: '鍋島　逞' }, { num: 44, name: '橋階　永吉' }, { num: 45, name: '松田　尚輝' },
+                { num: 46, name: '渡邊　凛音' }
+            ],
+            '4M': [
+                { num: 1, name: '芦野　琉成' }, { num: 2, name: '飯島　悠登' }, { num: 3, name: '伊藤　衣吹' },
+                { num: 4, name: '遠藤　淳生' }, { num: 5, name: '及川　雄翼' }, { num: 6, name: '大平　峻右' },
+                { num: 7, name: '尾形　そら' }, { num: 8, name: '小野寺　満' }, { num: 9, name: '加藤　亜子' },
+                { num: 10, name: '佐々木　煌太' }, { num: 11, name: '佐々木　大椰' }, { num: 12, name: '佐々木　柾治' },
+                { num: 13, name: '佐藤　克哉' }, { num: 14, name: '佐藤　滋郎' }, { num: 15, name: '佐藤　司眞' },
+                { num: 16, name: '佐藤　奏太' }, { num: 17, name: '佐藤　圭恵' }, { num: 18, name: '佐藤　知夏' },
+                { num: 19, name: '佐藤　祐希' }, { num: 20, name: '佐藤　吏玖' }, { num: 21, name: '東海林　誉峯' },
+                { num: 22, name: '菅原　悠斗' }, { num: 23, name: '菅原　慎樹' }, { num: 24, name: '相馬　大飛地' },
+                { num: 25, name: '高橋　泉' }, { num: 26, name: '高橋　寛太' }, { num: 27, name: '高橋　大杜' },
+                { num: 28, name: '高橋　優' }, { num: 29, name: '高橋　優斗' }, { num: 30, name: '高橋　侑叶' },
+                { num: 31, name: '千葉　舜太' }, { num: 32, name: '千葉　大嵩' }, { num: 33, name: '内藤　優実' },
+                { num: 34, name: '長谷川　寛太' }, { num: 35, name: '早坂　友宏' }, { num: 36, name: '松本　雄大' },
+                { num: 37, name: '三浦　佑太郎' }, { num: 38, name: '山崎　航太郎' }, { num: 39, name: '吉田　倖晟' },
+                { num: 40, name: 'キヨ' }
+            ],
+            '4E': [
+                { num: 1, name: '相澤　悠人' }, { num: 2, name: '阿部　啓人' }, { num: 3, name: '石角　葵' },
+                { num: 4, name: '泉田　謙' }, { num: 5, name: '岩渕　快星' }, { num: 6, name: '大森　春弥' },
+                { num: 7, name: '小田嶋　広耀' }, { num: 8, name: '菊地　瀬七' }, { num: 9, name: '北田　理久' },
+                { num: 10, name: '吉家　冴吹' }, { num: 11, name: '熊井　夢真' }, { num: 12, name: '佐々木　陽' },
+                { num: 13, name: '佐々木　優也' }, { num: 14, name: '佐々木　涼介' }, { num: 15, name: '佐藤　蓮月' },
+                { num: 16, name: '佐藤　優弥' }, { num: 17, name: '須藤　逞' }, { num: 18, name: '関　基博' },
+                { num: 19, name: '高橋　朝陽' }, { num: 20, name: '高橋　幸太郎' }, { num: 21, name: '田上　大喜' },
+                { num: 22, name: '瀧澤　那津' }, { num: 23, name: '田口　聖' }, { num: 24, name: '千葉　陽' },
+                { num: 25, name: '千葉　博也' }, { num: 26, name: '登坂　はつら' }, { num: 27, name: '平塚　誓也' },
+                { num: 28, name: '本郷　心暖' }, { num: 29, name: '三浦　由翔' }, { num: 30, name: '三浦　航琉' },
+                { num: 31, name: 'カーン' }
+            ],
+            '4J': [
+                { num: 1, name: '阿部　陽七太' }, { num: 2, name: '上部　来輝' }, { num: 3, name: '加藤　煌大' },
+                { num: 4, name: '狩野　巧海' }, { num: 5, name: '菊池　良平' }, { num: 6, name: '熊谷　和人' },
+                { num: 7, name: '黒澤　陽季' }, { num: 8, name: '小林　碧衣' }, { num: 9, name: '寒河江　海麗' },
+                { num: 10, name: '佐々木　蒼彩' }, { num: 11, name: '佐々木　惺南' }, { num: 12, name: '佐々木　悠翔' },
+                { num: 13, name: '佐藤　光人' }, { num: 14, name: '佐藤　來亞' }, { num: 15, name: '佐藤　良祐' },
+                { num: 16, name: '下坂　拓幹' }, { num: 17, name: '須藤　夏調' }, { num: 18, name: '多田　光' },
+                { num: 19, name: '千葉　蒼史' }, { num: 20, name: '千葉　温斗' }, { num: 21, name: '千葉　匡' },
+                { num: 22, name: '永山　晄' }, { num: 23, name: '二上　空平' }, { num: 24, name: '西澤　伶矢' },
+                { num: 25, name: '沼田　登志也' }, { num: 26, name: '野口　遥一朗' }, { num: 27, name: '日脇　敬斗' },
+                { num: 28, name: '藤原　凜音' }, { num: 29, name: '舛井　煌騎' }, { num: 30, name: '山本　飛鳥' },
+                { num: 31, name: '吉川　礼人' }, { num: 32, name: '米澤　維堂' }, { num: 33, name: '若槻　快人' }
+            ],
+            '4C': [
+                { num: 1, name: '石川　天馬' }, { num: 2, name: '伊藤　怜央' }, { num: 3, name: '小野寺　愛乃' },
+                { num: 4, name: '狩原　ほなみ' }, { num: 5, name: '木立　昂志' }, { num: 6, name: '熊谷　柊舞' },
+                { num: 7, name: '佐藤　福之介' }, { num: 8, name: '佐藤　結良' }, { num: 9, name: '菅原　梨沙' },
+                { num: 10, name: '鈴木　紀花' }, { num: 11, name: '高橋　美来' }, { num: 12, name: '多田　憂志' },
+                { num: 13, name: '千葉　明日香' }, { num: 14, name: '富澤　愛琉' }, { num: 15, name: '日向　彩乃' },
+                { num: 16, name: '村松　彪登' }, { num: 17, name: '八幡　大' }, { num: 18, name: '渡辺　和成' },
+                { num: 19, name: '渡辺　陽奈子' }
+            ]
+        };
+
+        var currentUser = null;
+        var selectedLoginClass = '2M';
+        var currentFilter = 'all';
+        var appData = { records: {}, freeRecords: [] };
+        var modalState = { sport: '卓球', format: 'シングルス', result: 'win', editingFreeId: null };
+
+        var STORAGE_KEY_USER = 'pe_score_app_user_v2';
+        var STORAGE_KEY_CLASS_USER_PREFIX = 'pe_score_app_class_user_v2_';
+        var STORAGE_KEY_DATA_PREFIX = 'pe_score_app_data_v2_';
+        var STORAGE_KEY_FORM_CONFIG = 'pe_score_app_form_config_v1';
+
+        var formConfig = {
+            formUrl: '', entryClass: '', entryNum: '', entryName: '',
+            entryMatches: '', entryWins: '', entryScore: '', entryDetails: '',
+            sheetCsvUrl: ''
+        };
+
+        function safeGetStorage(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+        function safeSetStorage(key, val) {
+            try { localStorage.setItem(key, val); } catch (e) {}
+        }
+        function safeRemoveStorage(key) {
+            try { localStorage.removeItem(key); } catch (e) {}
+        }
+
+        function initApp() {
+            loadFormConfig();
+            applyUrlParamsOnLoad();
+            populateLoginSelect('2M');
+
+            var savedUser = safeGetStorage(STORAGE_KEY_USER);
+            if (savedUser) {
+                try {
+                    var parsed = JSON.parse(savedUser);
+                    if (parsed && CLASS_ROSTERS[parsed.classId]) {
+                        currentUser = parsed;
+                        enterApp();
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function getQueryParam(name) {
+            var search = window.location.search || '';
+            if (search.charAt(0) === '?') search = search.substring(1);
+            var pairs = search.split('&');
+            for (var i = 0; i < pairs.length; i++) {
+                var idx = pairs[i].indexOf('=');
+                if (idx > -1) {
+                    var k = decodeURIComponent(pairs[i].substring(0, idx));
+                    if (k === name) return decodeURIComponent(pairs[i].substring(idx + 1).replace(/\+/g, ' '));
+                }
+            }
+            return null;
+        }
+
+        function applyUrlParamsOnLoad() {
+            var cfgParam = getQueryParam('cfg');
+            if (cfgParam) {
+                try {
+                    var decoded = JSON.parse(decodeURIComponent(escape(atob(cfgParam))));
+                    if (decoded && decoded.formUrl) {
+                        for (var k in decoded) {
+                            if (decoded.hasOwnProperty(k)) formConfig[k] = decoded[k];
+                        }
+                        safeSetStorage(STORAGE_KEY_FORM_CONFIG, JSON.stringify(formConfig));
+                        showToast('教員用のGoogleフォーム連携設定を読み込みました');
+                    }
+                } catch (e) {}
+            }
+            if (getQueryParam('settings') === '1') {
+                openSettingsModal();
+            }
+            if (getQueryParam('rules') === '1') {
+                openRulesModal('all');
+            }
+        }
+
+        // ==========================================
+        // ルール解説モーダル制御
+        // ==========================================
+        function openRulesModal(tab) {
+            switchRuleTab(tab || 'all');
+            document.getElementById('rules-modal').classList.remove('hidden');
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rules-modal').classList.add('hidden');
+        }
+
+        function switchRuleTab(tab) {
+            var tabs = ['all', 'tt', 'bd'];
+            for (var i = 0; i < tabs.length; i++) {
+                var btn = document.getElementById('rule-tab-' + tabs[i]);
+                if (btn) btn.className = (tabs[i] === tab) ? 'rule-nav-btn active' : 'rule-nav-btn';
+            }
+            var secTt = document.getElementById('rule-sec-tt');
+            var secBd = document.getElementById('rule-sec-bd');
+            var secEval = document.getElementById('rule-sec-eval');
+
+            if (tab === 'tt') {
+                secTt.classList.remove('hidden');
+                secBd.classList.add('hidden');
+                secEval.classList.add('hidden');
+            } else if (tab === 'bd') {
+                secTt.classList.add('hidden');
+                secBd.classList.remove('hidden');
+                secEval.classList.add('hidden');
+            } else {
+                secTt.classList.remove('hidden');
+                secBd.classList.remove('hidden');
+                secEval.classList.remove('hidden');
+            }
+        }
+
+        function selectLoginClass(classId) {
+            if (!CLASS_ROSTERS[classId]) return;
+            selectedLoginClass = classId;
+            var classes = ['2M', '2E', '2J', '2C', '4M', '4E', '4J', '4C'];
+            for (var i = 0; i < classes.length; i++) {
+                var cid = classes[i];
+                var btn = document.getElementById('btn-class-' + cid);
+                if (btn) {
+                    btn.className = (cid === classId) ? 'class-btn active' : 'class-btn';
+                }
+            }
+            populateLoginSelect(classId);
+        }
+
+        function populateLoginSelect(classId) {
+            var selectEl = document.getElementById('login-student-select');
+            if (!selectEl) return;
+            selectEl.innerHTML = '';
+
+            var roster = CLASS_ROSTERS[classId] || [];
+            for (var i = 0; i < roster.length; i++) {
+                var student = roster[i];
+                var opt = document.createElement('option');
+                opt.value = student.num + ':' + student.name;
+                opt.textContent = student.num + '番　' + student.name;
+                selectEl.appendChild(opt);
+            }
+
+            var customOpt = document.createElement('option');
+            customOpt.value = 'CUSTOM';
+            customOpt.textContent = '＋ 名簿にない（番号・氏名を手入力）';
+            selectEl.appendChild(customOpt);
+
+            toggleCustomNameInput();
+        }
+
+        function toggleCustomNameInput() {
+            var selectEl = document.getElementById('login-student-select');
+            var customFields = document.getElementById('custom-student-fields');
+            if (!selectEl || !customFields) return;
+            if (selectEl.value === 'CUSTOM') {
+                customFields.classList.remove('hidden');
+            } else {
+                customFields.classList.add('hidden');
+            }
+        }
+
+        function handleLogin() {
+            var val = document.getElementById('login-student-select').value;
+            if (val === 'CUSTOM') {
+                var num = parseInt(document.getElementById('custom-number').value, 10);
+                var name = document.getElementById('custom-name').value.replace(/^\s+|\s+$/g, '');
+                if (!num || !name) {
+                    showToast('出席番号と氏名を入力してください', 'error');
+                    return;
+                }
+                currentUser = { classId: selectedLoginClass, num: num, name: name };
+            } else {
+                var sepIdx = val.indexOf(':');
+                var numStr = val.substring(0, sepIdx);
+                var stName = val.substring(sepIdx + 1);
+                currentUser = { classId: selectedLoginClass, num: parseInt(numStr, 10), name: stName };
+            }
+            persistCurrentUser();
+            enterApp();
+        }
+
+        function persistCurrentUser() {
+            safeSetStorage(STORAGE_KEY_USER, JSON.stringify(currentUser));
+            safeSetStorage(STORAGE_KEY_CLASS_USER_PREFIX + currentUser.classId, JSON.stringify(currentUser));
+        }
+
+        function switchClassInApp(newClassId) {
+            if (!CLASS_ROSTERS[newClassId] || (currentUser && currentUser.classId === newClassId)) return;
+            var nextUser = null;
+            var savedClassUserRaw = safeGetStorage(STORAGE_KEY_CLASS_USER_PREFIX + newClassId);
+            if (savedClassUserRaw) {
+                try { nextUser = JSON.parse(savedClassUserRaw); } catch (e) {}
+            }
+            if (!nextUser || !nextUser.num || !nextUser.name) {
+                var firstStudent = CLASS_ROSTERS[newClassId][0];
+                nextUser = { classId: newClassId, num: firstStudent.num, name: firstStudent.name };
+            }
+            currentUser = nextUser;
+            persistCurrentUser();
+            enterApp();
+            showToast(newClassId + ' クラスに切り替えました');
+        }
+
+        function startDemoMode() {
+            currentUser = { classId: '2M', num: 1, name: '浅岡　武琉' };
+            persistCurrentUser();
+            enterApp();
+            loadSampleDataForCurrentUser();
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+
+            document.getElementById('header-class-select').value = currentUser.classId;
+            document.getElementById('header-number').textContent = currentUser.num + '番';
+            document.getElementById('header-name').textContent = currentUser.name;
+
+            loadUserData();
+            refreshUI();
+        }
+
+        function logout() {
+            var lastClass = currentUser ? currentUser.classId : '2M';
+            safeRemoveStorage(STORAGE_KEY_USER);
+            currentUser = null;
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            selectLoginClass(lastClass);
+        }
+
+        function getStorageKey() {
+            return STORAGE_KEY_DATA_PREFIX + currentUser.classId + '_' + currentUser.num + '_' + currentUser.name;
+        }
+
+        function loadUserData() {
+            var raw = safeGetStorage(getStorageKey());
+            if (raw) {
+                try {
+                    appData = JSON.parse(raw);
+                    if (!appData.records) appData.records = {};
+                    if (!appData.freeRecords) appData.freeRecords = [];
+                } catch (e) {
+                    appData = { records: {}, freeRecords: [] };
+                }
+            } else {
+                appData = { records: {}, freeRecords: [] };
+            }
+        }
+
+        function saveUserData() {
+            safeSetStorage(getStorageKey(), JSON.stringify(appData));
+        }
+
+        function calculateStats() {
+            var totalMatches = 0;
+            var totalWins = 0;
+
+            for (var k in appData.records) {
+                if (appData.records.hasOwnProperty(k)) {
+                    totalMatches++;
+                    if (appData.records[k].result === 'win') totalWins++;
+                }
+            }
+            for (var i = 0; i < appData.freeRecords.length; i++) {
+                totalMatches++;
+                if (appData.freeRecords[i].result === 'win') totalWins++;
+            }
+
+            var matchPt = 1;
+            if (totalMatches >= 51) matchPt = 6;
+            else if (totalMatches >= 41) matchPt = 5;
+            else if (totalMatches >= 31) matchPt = 4;
+            else if (totalMatches >= 21) matchPt = 3;
+            else if (totalMatches >= 11) matchPt = 2;
+
+            var winPt = 1;
+            if (totalWins >= 26) winPt = 4;
+            else if (totalWins >= 16) winPt = 3;
+            else if (totalWins >= 6) winPt = 2;
+
+            var totalScore = matchPt + winPt;
+            var winRate = totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : 0;
+
+            return {
+                totalMatches: totalMatches,
+                totalWins: totalWins,
+                matchPt: matchPt,
+                winPt: winPt,
+                totalScore: totalScore,
+                winRate: winRate
+            };
+        }
+
+        function refreshUI() {
+            var stats = calculateStats();
+
+            document.getElementById('stat-total-score').textContent = stats.totalScore;
+            document.getElementById('stat-match-pt').textContent = stats.matchPt;
+            document.getElementById('stat-match-pt-sub').textContent = stats.matchPt;
+            document.getElementById('stat-win-pt').textContent = stats.winPt;
+            document.getElementById('stat-win-pt-sub').textContent = stats.winPt;
+
+            document.getElementById('stat-total-matches').textContent = stats.totalMatches;
+            document.getElementById('stat-total-wins').textContent = stats.totalWins;
+            document.getElementById('stat-win-rate').textContent = '(' + stats.winRate + '%)';
+
+            var matchPct = Math.min(100, Math.max(4, Math.round((stats.totalMatches / 51) * 100)));
+            var winPct = Math.min(100, Math.max(4, Math.round((stats.totalWins / 26) * 100)));
+            document.getElementById('bar-matches').style.width = matchPct + '%';
+            document.getElementById('bar-wins').style.width = winPct + '%';
+
+            var badge = document.getElementById('grade-badge');
+            if (stats.totalScore === 10) {
+                badge.textContent = '👑 評価MAX達成！';
+            } else if (stats.totalScore >= 8) {
+                badge.textContent = '🔥 素晴らしいペース！';
+            } else if (stats.totalScore >= 5) {
+                badge.textContent = '👍 順調に進行中';
+            } else {
+                badge.textContent = '🏸 どんどん試合しよう！';
+            }
+
+            renderRoster();
+            renderFreeList();
+            refreshClassLeaders(false);
+        }
+
+        function parseCsvRows(csvText) {
+            var rows = [];
+            var row = [];
+            var cur = '';
+            var inQuotes = false;
+            for (var i = 0; i < csvText.length; i++) {
+                var ch = csvText.charAt(i);
+                var next = csvText.charAt(i + 1);
+                if (inQuotes) {
+                    if (ch === '"' && next === '"') { cur += '"'; i++; }
+                    else if (ch === '"') { inQuotes = false; }
+                    else { cur += ch; }
+                } else {
+                    if (ch === '"') { inQuotes = true; }
+                    else if (ch === ',') { row.push(cur); cur = ''; }
+                    else if (ch === '\r' && next === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; i++; }
+                    else if (ch === '\n' || ch === '\r') { row.push(cur); rows.push(row); row = []; cur = ''; }
+                    else { cur += ch; }
+                }
+            }
+            if (cur.length > 0 || row.length > 0) {
+                row.push(cur);
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        function updateLeaderDOM(classId, studentStatsMap, manualTrigger) {
+            var allEntries = [];
+            for (var k in studentStatsMap) {
+                if (studentStatsMap.hasOwnProperty(k) && studentStatsMap[k].matches > 0) {
+                    allEntries.push(studentStatsMap[k]);
+                }
+            }
+
+            var maxMatches = 0;
+            var maxWins = 0;
+            for (var i = 0; i < allEntries.length; i++) {
+                if (allEntries[i].matches > maxMatches) maxMatches = allEntries[i].matches;
+                if (allEntries[i].wins > maxWins) maxWins = allEntries[i].wins;
+            }
+
+            var topMatchHolders = [];
+            var topWinHolders = [];
+            for (var j = 0; j < allEntries.length; j++) {
+                if (maxMatches > 0 && allEntries[j].matches === maxMatches) topMatchHolders.push(allEntries[j]);
+                if (maxWins > 0 && allEntries[j].wins === maxWins) topWinHolders.push(allEntries[j]);
+            }
+
+            function formatHolders(list) {
+                if (list.length === 0) return '記録待ち';
+                var head = (list[0].num ? list[0].num + '番 ' : '') + list[0].name;
+                if (list.length === 1) return head;
+                return head + ' ほか' + (list.length - 1) + '名';
+            }
+
+            document.getElementById('leader-matches-name').textContent = formatHolders(topMatchHolders);
+            document.getElementById('leader-matches-val').textContent = maxMatches + ' 試合';
+            document.getElementById('leader-wins-name').textContent = formatHolders(topWinHolders);
+            document.getElementById('leader-wins-val').textContent = maxWins + ' 勝';
+
+            if (manualTrigger) {
+                showToast(classId + 'クラスのトップ記録を更新しました');
+            }
+        }
+
+        function refreshClassLeaders(manualTrigger) {
+            if (!currentUser) return;
+            var classId = currentUser.classId;
+            var labelEl = document.getElementById('leader-class-label');
+            if (labelEl) labelEl.textContent = classId;
+
+            var studentStatsMap = {};
+            var roster = CLASS_ROSTERS[classId] || [];
+            for (var i = 0; i < roster.length; i++) {
+                var st = roster[i];
+                var key = STORAGE_KEY_DATA_PREFIX + classId + '_' + st.num + '_' + st.name;
+                var raw = safeGetStorage(key);
+                if (raw) {
+                    try {
+                        var parsed = JSON.parse(raw);
+                        var m = 0;
+                        var w = 0;
+                        var recs = parsed.records || {};
+                        for (var rk in recs) {
+                            if (recs.hasOwnProperty(rk)) {
+                                m++;
+                                if (recs[rk].result === 'win') w++;
+                            }
+                        }
+                        var frecs = parsed.freeRecords || [];
+                        for (var fi = 0; fi < frecs.length; fi++) {
+                            m++;
+                            if (frecs[fi].result === 'win') w++;
+                        }
+                        if (m > 0) {
+                            studentStatsMap[st.num + '_' + st.name] = { num: st.num, name: st.name, matches: m, wins: w };
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            updateLeaderDOM(classId, studentStatsMap, false);
+
+            loadFormConfig();
+            if (formConfig.sheetCsvUrl && window.XMLHttpRequest) {
+                var sep = formConfig.sheetCsvUrl.indexOf('?') > -1 ? '&' : '?';
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', formConfig.sheetCsvUrl + sep + '_t=' + Date.now(), true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var rows = parseCsvRows(xhr.responseText);
+                        for (var rIdx = 1; rIdx < rows.length; rIdx++) {
+                            var r = rows[rIdx];
+                            if (!r || r.length < 6) continue;
+                            var rowClass = (r[1] || '').replace(/^\s+|\s+$/g, '');
+                            if (rowClass !== classId) continue;
+
+                            var num = parseInt((r[2] || '').replace(/^\s+|\s+$/g, ''), 10);
+                            var name = (r[3] || '').replace(/^\s+|\s+$/g, '');
+                            var matches = parseInt((r[4] || '0').replace(/^\s+|\s+$/g, ''), 10) || 0;
+                            var wins = parseInt((r[5] || '0').replace(/^\s+|\s+$/g, ''), 10) || 0;
+                            if (!name) continue;
+
+                            var mapKey = num + '_' + name;
+                            var existing = studentStatsMap[mapKey];
+                            if (!existing || matches >= existing.matches) {
+                                studentStatsMap[mapKey] = {
+                                    num: isNaN(num) ? '' : num,
+                                    name: name,
+                                    matches: Math.max(matches, existing ? existing.matches : 0),
+                                    wins: Math.max(wins, existing ? existing.wins : 0)
+                                };
+                            }
+                        }
+                        updateLeaderDOM(classId, studentStatsMap, manualTrigger);
+                    } else if (xhr.readyState === 4 && manualTrigger) {
+                        updateLeaderDOM(classId, studentStatsMap, true);
+                    }
+                };
+                xhr.send();
+            } else if (manualTrigger) {
+                updateLeaderDOM(classId, studentStatsMap, true);
+            }
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            var tabs = ['all', 'unplayed', 'played'];
+            for (var i = 0; i < tabs.length; i++) {
+                var el = document.getElementById('filter-' + tabs[i]);
+                if (el) {
+                    el.className = (tabs[i] === filter) ? 'filter-tab active' : 'filter-tab';
+                }
+            }
+            renderRoster();
+        }
+
+        function renderRoster() {
+            var listEl = document.getElementById('roster-list');
+            var searchQuery = document.getElementById('search-input').value.replace(/^\s+|\s+$/g, '').toLowerCase();
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+
+            var unplayedCount = 0;
+            var playedCount = 0;
+            var html = '';
+
+            for (var i = 0; i < roster.length; i++) {
+                var student = roster[i];
+                if (student.num === currentUser.num && student.name === currentUser.name) continue;
+
+                var record = appData.records[student.num];
+                if (record) playedCount++;
+                else unplayedCount++;
+
+                if (currentFilter === 'unplayed' && record) continue;
+                if (currentFilter === 'played' && !record) continue;
+
+                if (searchQuery) {
+                    var matchNum = String(student.num).indexOf(searchQuery) > -1;
+                    var matchName = student.name.toLowerCase().indexOf(searchQuery) > -1;
+                    if (!matchNum && !matchName) continue;
+                }
+
+                if (record) {
+                    var isWin = record.result === 'win';
+                    var badgeClass = isWin ? 'res-badge-win' : 'res-badge-lose';
+                    var badgeText = isWin ? '勝' : '負';
+                    var sportIcon = record.sport === '卓球' ? '🏓' : '🏸';
+                    var fmtLabel = record.format === 'ダブルス' ? '複' : '単';
+                    var scoreText = formatScoreSummary(record);
+
+                    html += '<div onclick="openMatchModal(' + student.num + ', false)" class="roster-item-played">' +
+                        '<div class="roster-left">' +
+                            '<span class="num-badge">' + student.num + '</span>' +
+                            '<div style="min-width:0;flex:1;">' +
+                                '<div style="display:flex;align-items:center;"><span class="student-name">' + student.name + '</span><span class="sport-tag">' + sportIcon + ' ' + fmtLabel + '</span></div>' +
+                                '<p class="score-detail-text">' + scoreText + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display:flex;align-items:center;gap:6px;">' +
+                            '<span class="' + badgeClass + '">' + badgeText + '</span>' +
+                        '</div>' +
+                    '</div>';
+                } else {
+                    html += '<div onclick="openMatchModal(' + student.num + ', false)" class="roster-item-unplayed">' +
+                        '<div class="roster-left">' +
+                            '<span class="num-badge" style="color:#94a3b8;">' + student.num + '</span>' +
+                            '<span class="student-name" style="color:#475569;">' + student.name + '</span>' +
+                        '</div>' +
+                        '<span class="btn-input-pill">＋ 入力</span>' +
+                    '</div>';
+                }
+            }
+
+            document.getElementById('count-unplayed').textContent = unplayedCount;
+            document.getElementById('count-played').textContent = playedCount;
+
+            if (!html) {
+                html = '<div style="text-align:center;padding:22px;font-size:12px;font-weight:700;color:#94a3b8;background:#fff;border-radius:14px;">該当する対戦相手がいません</div>';
+            }
+            listEl.innerHTML = html;
+        }
+
+        function renderFreeList() {
+            var freeEl = document.getElementById('free-list');
+            if (appData.freeRecords.length === 0) {
+                freeEl.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:#94a3b8;background:rgba(255,255,255,0.6);border-radius:14px;border:1px dashed #cbd5e1;">まだFree対戦の記録はありません</div>';
+                return;
+            }
+
+            var html = '';
+            for (var idx = 0; idx < appData.freeRecords.length; idx++) {
+                var rec = appData.freeRecords[idx];
+                var isWin = rec.result === 'win';
+                var badgeClass = isWin ? 'res-badge-win' : 'res-badge-lose';
+                var badgeText = isWin ? '勝' : '負';
+                var sportIcon = rec.sport === '卓球' ? '🏓' : '🏸';
+                var fmtLabel = rec.format === 'ダブルス' ? '複' : '単';
+                var scoreText = formatScoreSummary(rec);
+
+                html += '<div onclick="openEditFreeModal(\'' + rec.id + '\')" class="roster-item-played" style="border-color:#fde68a;">' +
+                    '<div class="roster-left">' +
+                        '<span style="padding:3px 6px;border-radius:6px;background:#fef3c7;color:#92400e;font-weight:900;font-size:10px;">Free ' + (idx + 1) + '</span>' +
+                        '<div style="min-width:0;flex:1;">' +
+                            '<div style="display:flex;align-items:center;"><span class="student-name">' + rec.opponentName + '</span><span class="sport-tag">' + sportIcon + ' ' + fmtLabel + '</span></div>' +
+                            '<p class="score-detail-text">' + scoreText + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<span class="' + badgeClass + '">' + badgeText + '</span>' +
+                '</div>';
+            }
+            freeEl.innerHTML = html;
+        }
+
+        function formatScoreSummary(rec) {
+            var parts = [];
+            if (rec.s1 && (rec.s1[0] !== '' || rec.s1[1] !== '')) parts.push(rec.s1[0] + '-' + rec.s1[1]);
+            if (rec.s2 && (rec.s2[0] !== '' || rec.s2[1] !== '')) parts.push(rec.s2[0] + '-' + rec.s2[1]);
+            if (rec.s3 && rec.s3[0] !== null && rec.s3[0] !== '' && rec.s3[1] !== null && rec.s3[1] !== '') {
+                parts.push(rec.s3[0] + '-' + rec.s3[1]);
+            }
+            return parts.join(' / ');
+        }
+
+        function populateModalOpponents() {
+            var sel1 = document.getElementById('modal-opponent-1');
+            var sel2 = document.getElementById('modal-opponent-2');
+            sel1.innerHTML = '';
+            sel2.innerHTML = '';
+
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+            var emptyOpt2 = document.createElement('option');
+            emptyOpt2.value = '';
+            emptyOpt2.textContent = '（2人目を選択しない / 他クラス等）';
+            sel2.appendChild(emptyOpt2);
+
+            for (var i = 0; i < roster.length; i++) {
+                var student = roster[i];
+                if (student.num === currentUser.num && student.name === currentUser.name) continue;
+                var opt1 = document.createElement('option');
+                opt1.value = student.num;
+                opt1.textContent = student.num + '番　' + student.name;
+                sel1.appendChild(opt1);
+
+                var opt2 = document.createElement('option');
+                opt2.value = student.num;
+                opt2.textContent = student.num + '番　' + student.name;
+                sel2.appendChild(opt2);
+            }
+        }
+
+        function openMatchModal(targetOpponentNum, isFree) {
+            modalState.editingFreeId = null;
+            populateModalOpponents();
+
+            var freeCheckbox = document.getElementById('modal-is-free');
+            freeCheckbox.checked = Boolean(isFree);
+            document.getElementById('modal-opponent-1').disabled = false;
+
+            var existingRec = (!isFree && targetOpponentNum) ? appData.records[targetOpponentNum] : null;
+            var deleteBtn = document.getElementById('btn-delete-record');
+
+            if (existingRec) {
+                document.getElementById('modal-title').textContent = '試合結果の編集';
+                document.getElementById('modal-opponent-1').value = targetOpponentNum;
+                setModalSport(existingRec.sport);
+                setModalFormat(existingRec.format);
+
+                document.getElementById('s1-my').value = existingRec.s1[0];
+                document.getElementById('s1-op').value = existingRec.s1[1];
+                document.getElementById('s2-my').value = existingRec.s2[0];
+                document.getElementById('s2-op').value = existingRec.s2[1];
+                document.getElementById('s3-my').value = existingRec.s3 ? existingRec.s3[0] : '';
+                document.getElementById('s3-op').value = existingRec.s3 ? existingRec.s3[1] : '';
+
+                setModalResult(existingRec.result);
+                deleteBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('modal-title').textContent = isFree ? 'Free対戦の入力' : '試合結果の入力';
+                if (targetOpponentNum) {
+                    document.getElementById('modal-opponent-1').value = targetOpponentNum;
+                }
+                setModalSport('卓球');
+                setModalFormat('シングルス');
+
+                document.getElementById('s1-my').value = 11;
+                document.getElementById('s1-op').value = 0;
+                document.getElementById('s2-my').value = 11;
+                document.getElementById('s2-op').value = 0;
+                document.getElementById('s3-my').value = '';
+                document.getElementById('s3-op').value = '';
+
+                setModalResult('win');
+                deleteBtn.classList.add('hidden');
+            }
+
+            toggleFreeModeInModal();
+            document.getElementById('match-modal').classList.remove('hidden');
+        }
+
+        function openEditFreeModal(freeId) {
+            var rec = null;
+            for (var i = 0; i < appData.freeRecords.length; i++) {
+                if (appData.freeRecords[i].id === freeId) { rec = appData.freeRecords[i]; break; }
+            }
+            if (!rec) return;
+
+            modalState.editingFreeId = freeId;
+            populateModalOpponents();
+
+            document.getElementById('modal-title').textContent = 'Free対戦の編集';
+            document.getElementById('modal-is-free').checked = true;
+            document.getElementById('modal-opponent-1').value = rec.opponentNum || '';
+
+            setModalSport(rec.sport);
+            setModalFormat(rec.format);
+
+            document.getElementById('s1-my').value = rec.s1[0];
+            document.getElementById('s1-op').value = rec.s1[1];
+            document.getElementById('s2-my').value = rec.s2[0];
+            document.getElementById('s2-op').value = rec.s2[1];
+            document.getElementById('s3-my').value = rec.s3 ? rec.s3[0] : '';
+            document.getElementById('s3-op').value = rec.s3 ? rec.s3[1] : '';
+
+            setModalResult(rec.result);
+            document.getElementById('btn-delete-record').classList.remove('hidden');
+            toggleFreeModeInModal();
+            document.getElementById('match-modal').classList.remove('hidden');
+        }
+
+        function closeMatchModal() {
+            document.getElementById('match-modal').classList.add('hidden');
+        }
+
+        function setModalSport(sport) {
+            modalState.sport = sport;
+            var btnTt = document.getElementById('btn-sport-tt');
+            var btnBd = document.getElementById('btn-sport-bd');
+            btnTt.className = (sport === '卓球') ? 'seg-btn active-blue' : 'seg-btn';
+            btnBd.className = (sport === 'バドミントン') ? 'seg-btn active-blue' : 'seg-btn';
+        }
+
+        function setModalFormat(format) {
+            modalState.format = format;
+            var btnSingle = document.getElementById('btn-fmt-single');
+            var btnDouble = document.getElementById('btn-fmt-double');
+            var op2Container = document.getElementById('modal-opponent-2-container');
+            var isFree = document.getElementById('modal-is-free').checked;
+
+            if (format === 'シングルス') {
+                btnSingle.className = 'seg-btn active-green';
+                btnDouble.className = 'seg-btn';
+                op2Container.classList.add('hidden');
+            } else {
+                btnDouble.className = 'seg-btn active-green';
+                btnSingle.className = 'seg-btn';
+                if (!isFree && !modalState.editingFreeId) {
+                    op2Container.classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleFreeModeInModal() {
+            var isFree = document.getElementById('modal-is-free').checked;
+            var op2Container = document.getElementById('modal-opponent-2-container');
+            if (isFree || modalState.format === 'シングルス' || modalState.editingFreeId) {
+                op2Container.classList.add('hidden');
+            } else {
+                op2Container.classList.remove('hidden');
+            }
+        }
+
+        function adjustScore(setNum, side, delta) {
+            var input = document.getElementById('s' + setNum + '-' + side);
+            var val = parseInt(input.value, 10);
+            if (isNaN(val)) val = 0;
+            val = Math.max(0, val + delta);
+            input.value = val;
+
+            if (setNum === 3) {
+                var otherSide = side === 'my' ? 'op' : 'my';
+                var otherInput = document.getElementById('s3-' + otherSide);
+                if (otherInput.value === '') otherInput.value = 0;
+            }
+            autoJudgeResult();
+        }
+
+        function applyScorePreset(s1m, s1o, s2m, s2o) {
+            document.getElementById('s1-my').value = s1m;
+            document.getElementById('s1-op').value = s1o;
+            document.getElementById('s2-my').value = s2m;
+            document.getElementById('s2-op').value = s2o;
+            document.getElementById('s3-my').value = '';
+            document.getElementById('s3-op').value = '';
+            autoJudgeResult();
+        }
+
+        function autoJudgeResult() {
+            var mySets = 0;
+            var opSets = 0;
+            for (var i = 1; i <= 3; i++) {
+                var mStr = document.getElementById('s' + i + '-my').value;
+                var oStr = document.getElementById('s' + i + '-op').value;
+                if (mStr !== '' && oStr !== '') {
+                    var m = parseInt(mStr, 10);
+                    var o = parseInt(oStr, 10);
+                    if (m > o) mySets++;
+                    else if (o > m) opSets++;
+                }
+            }
+            if (mySets > opSets) setModalResult('win');
+            else if (opSets > mySets) setModalResult('lose');
+        }
+
+        function setModalResult(res) {
+            modalState.result = res;
+            var btnWin = document.getElementById('btn-res-win');
+            var btnLose = document.getElementById('btn-res-lose');
+            if (res === 'win') {
+                btnWin.className = 'res-btn-win';
+                btnLose.className = 'res-btn-inactive';
+            } else {
+                btnLose.className = 'res-btn-lose';
+                btnWin.className = 'res-btn-inactive';
+            }
+        }
+
+        function saveMatchRecord() {
+            var isFree = document.getElementById('modal-is-free').checked;
+            var op1Num = parseInt(document.getElementById('modal-opponent-1').value, 10);
+            var op2Val = document.getElementById('modal-opponent-2').value;
+            var op2Num = op2Val ? parseInt(op2Val, 10) : null;
+
+            if (!op1Num) {
+                showToast('対戦相手を選択してください', 'error');
+                return;
+            }
+            if (!isFree && modalState.format === 'ダブルス' && op2Num && op1Num === op2Num) {
+                showToast('対戦相手1と2に同じ人が選ばれています', 'error');
+                return;
+            }
+
+            var s1 = [parseInt(document.getElementById('s1-my').value || '0', 10), parseInt(document.getElementById('s1-op').value || '0', 10)];
+            var s2 = [parseInt(document.getElementById('s2-my').value || '0', 10), parseInt(document.getElementById('s2-op').value || '0', 10)];
+            var s3m = document.getElementById('s3-my').value;
+            var s3o = document.getElementById('s3-op').value;
+            var s3 = (s3m !== '' && s3o !== '') ? [parseInt(s3m, 10), parseInt(s3o, 10)] : null;
+
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+            var op1Obj = null;
+            for (var i = 0; i < roster.length; i++) {
+                if (roster[i].num === op1Num) { op1Obj = roster[i]; break; }
+            }
+            var op1Name = op1Obj ? (op1Obj.num + '番 ' + op1Obj.name) : (op1Num + '番');
+
+            if (modalState.editingFreeId) {
+                for (var fi = 0; fi < appData.freeRecords.length; fi++) {
+                    if (appData.freeRecords[fi].id === modalState.editingFreeId) {
+                        appData.freeRecords[fi] = {
+                            id: modalState.editingFreeId,
+                            opponentNum: op1Num,
+                            opponentName: op1Name,
+                            sport: modalState.sport,
+                            format: modalState.format,
+                            s1: s1, s2: s2, s3: s3,
+                            result: modalState.result,
+                            timestamp: Date.now()
+                        };
+                        break;
+                    }
+                }
+                showToast('Free対戦を更新しました！');
+            } else if (isFree) {
+                appData.freeRecords.push({
+                    id: 'free_' + Date.now(),
+                    opponentNum: op1Num,
+                    opponentName: op1Name,
+                    sport: modalState.sport,
+                    format: modalState.format,
+                    s1: s1, s2: s2, s3: s3,
+                    result: modalState.result,
+                    timestamp: Date.now()
+                });
+                showToast('Free対戦を記録しました！');
+            } else {
+                appData.records[op1Num] = {
+                    sport: modalState.sport,
+                    format: modalState.format,
+                    s1: s1, s2: s2, s3: s3,
+                    result: modalState.result,
+                    timestamp: Date.now()
+                };
+                if (modalState.format === 'ダブルス' && op2Num) {
+                    appData.records[op2Num] = {
+                        sport: modalState.sport,
+                        format: modalState.format,
+                        s1: s1, s2: s2, s3: s3,
+                        result: modalState.result,
+                        timestamp: Date.now()
+                    };
+                    showToast('ダブルス2人分のスコアを同時に記録しました！');
+                } else {
+                    showToast('試合結果を記録しました！');
+                }
+            }
+
+            saveUserData();
+            closeMatchModal();
+            refreshUI();
+
+            loadFormConfig();
+            if (formConfig.formUrl) {
+                submitToGoogleForm(true);
+            }
+        }
+
+        function deleteCurrentRecord() {
+            if (modalState.editingFreeId) {
+                var nextList = [];
+                for (var i = 0; i < appData.freeRecords.length; i++) {
+                    if (appData.freeRecords[i].id !== modalState.editingFreeId) nextList.push(appData.freeRecords[i]);
+                }
+                appData.freeRecords = nextList;
+                showToast('Free対戦の記録を削除しました');
+            } else {
+                var op1Num = parseInt(document.getElementById('modal-opponent-1').value, 10);
+                if (op1Num && appData.records[op1Num]) {
+                    delete appData.records[op1Num];
+                    showToast('記録を削除しました');
+                }
+            }
+            saveUserData();
+            closeMatchModal();
+            refreshUI();
+        }
+
+        function showToast(message, type) {
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
+            toast.className = (type === 'error') ? 'toast-item toast-error' : 'toast-item';
+            toast.textContent = (type === 'error' ? '⚠️ ' : '✅ ') + message;
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 2600);
+        }
+
+        function exportCSV() {
+            var stats = calculateStats();
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+
+            var csvRows = [];
+            csvRows.push(['選択体育 卓球・バドミントン 評価シート']);
+            csvRows.push(['クラス', currentUser.classId, '出席番号', currentUser.num, '氏名', currentUser.name]);
+            csvRows.push(['総試合数', stats.totalMatches, '総勝利数', stats.totalWins, '試合数点(6点満点)', stats.matchPt, '勝利数点(4点満点)', stats.winPt, '合計評価点(10点満点)', stats.totalScore]);
+            csvRows.push([]);
+            csvRows.push(['区分', '相手番号', '対戦相手氏名', '種目', '形式', '1セット目', '2セット目', '3セット目', '結果']);
+
+            for (var i = 0; i < roster.length; i++) {
+                var student = roster[i];
+                if (student.num === currentUser.num && student.name === currentUser.name) continue;
+                var rec = appData.records[student.num];
+                if (rec) {
+                    var s1 = rec.s1[0] + '-' + rec.s1[1];
+                    var s2 = rec.s2[0] + '-' + rec.s2[1];
+                    var s3 = rec.s3 ? (rec.s3[0] + '-' + rec.s3[1]) : '';
+                    var resText = rec.result === 'win' ? '勝' : '負';
+                    csvRows.push(['クラス名簿', student.num, student.name, rec.sport, rec.format, s1, s2, s3, resText]);
+                } else {
+                    csvRows.push(['クラス名簿', student.num, student.name, '', '', '', '', '', '未対戦']);
+                }
+            }
+
+            for (var j = 0; j < appData.freeRecords.length; j++) {
+                var frec = appData.freeRecords[j];
+                var fs1 = frec.s1[0] + '-' + frec.s1[1];
+                var fs2 = frec.s2[0] + '-' + frec.s2[1];
+                var fs3 = frec.s3 ? (frec.s3[0] + '-' + frec.s3[1]) : '';
+                var fresText = frec.result === 'win' ? '勝' : '負';
+                csvRows.push(['Free' + (j + 1), frec.opponentNum || '', frec.opponentName, frec.sport, frec.format, fs1, fs2, fs3, fresText]);
+            }
+
+            var lines = [];
+            for (var r = 0; r < csvRows.length; r++) {
+                var cols = [];
+                for (var c = 0; c < csvRows[r].length; c++) {
+                    cols.push('"' + String(csvRows[r][c]).replace(/"/g, '""') + '"');
+                }
+                lines.push(cols.join(','));
+            }
+            var csvString = lines.join('\r\n');
+            var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            var blob = new Blob([bom, csvString], { type: 'text/csv;charset=utf-8;' });
+
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = '評価シート_' + currentUser.classId + '_' + currentUser.num + '_' + currentUser.name + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(currentUser.classId + 'のCSVファイルをダウンロードしました！');
+        }
+
+        function loadSampleDataForCurrentUser() {
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+            var others = [];
+            for (var i = 0; i < roster.length; i++) {
+                if (!(roster[i].num === currentUser.num && roster[i].name === currentUser.name)) {
+                    others.push(roster[i]);
+                }
+            }
+
+            appData.records = {};
+            appData.freeRecords = [];
+
+            var samplePatterns = [
+                { sport: '卓球', format: 'シングルス', s1: [11, 6], s2: [11, 8], s3: null, result: 'win' },
+                { sport: '卓球', format: 'シングルス', s1: [8, 11], s2: [11, 9], s3: [11, 7], result: 'win' },
+                { sport: 'バドミントン', format: 'ダブルス', s1: [12, 10], s2: [11, 9], s3: null, result: 'win' },
+                { sport: 'バドミントン', format: 'ダブルス', s1: [12, 10], s2: [11, 9], s3: null, result: 'win' },
+                { sport: '卓球', format: 'シングルス', s1: [7, 11], s2: [9, 11], s3: null, result: 'lose' },
+                { sport: 'バドミントン', format: 'シングルス', s1: [11, 4], s2: [11, 5], s3: null, result: 'win' },
+                { sport: '卓球', format: 'ダブルス', s1: [9, 11], s2: [11, 8], s3: [9, 11], result: 'lose' },
+                { sport: '卓球', format: 'ダブルス', s1: [9, 11], s2: [11, 8], s3: [9, 11], result: 'lose' },
+                { sport: 'バドミントン', format: 'シングルス', s1: [11, 7], s2: [11, 6], s3: null, result: 'win' },
+                { sport: '卓球', format: 'シングルス', s1: [13, 11], s2: [11, 9], s3: null, result: 'win' },
+                { sport: 'バドミントン', format: 'シングルス', s1: [6, 11], s2: [8, 11], s3: null, result: 'lose' },
+                { sport: '卓球', format: 'シングルス', s1: [11, 3], s2: [11, 4], s3: null, result: 'win' }
+            ];
+
+            for (var p = 0; p < samplePatterns.length; p++) {
+                if (others[p]) {
+                    var pat = samplePatterns[p];
+                    appData.records[others[p].num] = {
+                        sport: pat.sport, format: pat.format, s1: pat.s1, s2: pat.s2, s3: pat.s3, result: pat.result,
+                        timestamp: Date.now() - p * 60000
+                    };
+                }
+            }
+
+            if (others[0]) {
+                appData.freeRecords.push({
+                    id: 'free_sample_1',
+                    opponentNum: others[0].num,
+                    opponentName: others[0].num + '番 ' + others[0].name,
+                    sport: '卓球',
+                    format: 'シングルス',
+                    s1: [11, 9], s2: [11, 8], s3: null,
+                    result: 'win',
+                    timestamp: Date.now()
+                });
+            }
+
+            saveUserData();
+            refreshUI();
+            showToast('サンプルデータ（13試合・9勝）を読み込みました！');
+        }
+
+        function openConfirmResetModal() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+        function closeConfirmResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+        function executeReset() {
+            appData = { records: {}, freeRecords: [] };
+            saveUserData();
+            closeConfirmResetModal();
+            refreshUI();
+            showToast('すべての記録をリセットしました');
+        }
+
+        // ==========================================
+        // 教員設定 & Googleフォーム送信
+        // ==========================================
+        function loadFormConfig() {
+            var raw = safeGetStorage(STORAGE_KEY_FORM_CONFIG);
+            if (raw) {
+                try {
+                    var parsed = JSON.parse(raw);
+                    for (var k in parsed) {
+                        if (parsed.hasOwnProperty(k)) formConfig[k] = parsed[k];
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function openSettingsModal() {
+            loadFormConfig();
+            document.getElementById('cfg-form-url').value = formConfig.formUrl || '';
+            document.getElementById('cfg-entry-class').value = formConfig.entryClass || '';
+            document.getElementById('cfg-entry-num').value = formConfig.entryNum || '';
+            document.getElementById('cfg-entry-name').value = formConfig.entryName || '';
+            document.getElementById('cfg-entry-matches').value = formConfig.entryMatches || '';
+            document.getElementById('cfg-entry-wins').value = formConfig.entryWins || '';
+            document.getElementById('cfg-entry-score').value = formConfig.entryScore || '';
+            document.getElementById('cfg-entry-details').value = formConfig.entryDetails || '';
+            document.getElementById('cfg-sheet-csv-url').value = formConfig.sheetCsvUrl || '';
+            document.getElementById('prefill-url-input').value = '';
+
+            var baseInput = document.getElementById('cfg-base-page-url');
+            if (baseInput && !baseInput.value) {
+                var curLoc = window.location.href.split('?')[0].split('#')[0];
+                if (curLoc.indexOf('http://') === 0 || curLoc.indexOf('https://') === 0) {
+                    baseInput.value = curLoc;
+                }
+            }
+
+            var badge = document.getElementById('settings-status-badge');
+            if (formConfig.formUrl && formConfig.entryClass && formConfig.entryName) {
+                badge.textContent = '✅ 連携設定済み';
+                badge.style.backgroundColor = '#d1fae5';
+                badge.style.color = '#047857';
+            } else {
+                badge.textContent = '⚠️ 未設定';
+                badge.style.backgroundColor = '#fef3c7';
+                badge.style.color = '#92400e';
+            }
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function normalizeEntryId(val) {
+            var trimmed = (val || '').replace(/^\s+|\s+$/g, '');
+            if (!trimmed) return '';
+            return trimmed.indexOf('entry.') === 0 ? trimmed : ('entry.' + trimmed);
+        }
+
+        function normalizeFormResponseUrl(rawUrl) {
+            var url = (rawUrl || '').replace(/^\s+|\s+$/g, '');
+            if (!url) return '';
+            url = url.split('?')[0];
+            url = url.replace(/\/viewform\/?$/, '/formResponse');
+            return url;
+        }
+
+        function parsePrefillUrl() {
+            var raw = document.getElementById('prefill-url-input').value.replace(/^\s+|\s+$/g, '');
+            if (!raw || raw.indexOf('?') === -1) {
+                showToast('事前入力リンクを貼り付けてください', 'error');
+                return;
+            }
+            var formResponseUrl = normalizeFormResponseUrl(raw);
+            var queryStr = raw.split('?')[1];
+            var pairs = queryStr.split('&');
+            var entries = [];
+            for (var i = 0; i < pairs.length; i++) {
+                var k = decodeURIComponent(pairs[i].split('=')[0]);
+                if (k.indexOf('entry.') === 0) {
+                    entries.push(k);
+                }
+            }
+            if (entries.length === 0) {
+                showToast('URL内に entry.xxxxx が見つかりませんでした', 'error');
+                return;
+            }
+            document.getElementById('cfg-form-url').value = formResponseUrl;
+            var fieldIds = [
+                'cfg-entry-class', 'cfg-entry-num', 'cfg-entry-name',
+                'cfg-entry-matches', 'cfg-entry-wins', 'cfg-entry-score', 'cfg-entry-details'
+            ];
+            for (var f = 0; f < fieldIds.length; f++) {
+                document.getElementById(fieldIds[f]).value = entries[f] || '';
+            }
+            showToast(entries.length + '個の項目IDを抽出しました！「保存」を押してください');
+        }
+
+        function saveFormConfig() {
+            formConfig = {
+                formUrl: normalizeFormResponseUrl(document.getElementById('cfg-form-url').value),
+                entryClass: normalizeEntryId(document.getElementById('cfg-entry-class').value),
+                entryNum: normalizeEntryId(document.getElementById('cfg-entry-num').value),
+                entryName: normalizeEntryId(document.getElementById('cfg-entry-name').value),
+                entryMatches: normalizeEntryId(document.getElementById('cfg-entry-matches').value),
+                entryWins: normalizeEntryId(document.getElementById('cfg-entry-wins').value),
+                entryScore: normalizeEntryId(document.getElementById('cfg-entry-score').value),
+                entryDetails: normalizeEntryId(document.getElementById('cfg-entry-details').value),
+                sheetCsvUrl: document.getElementById('cfg-sheet-csv-url').value.replace(/^\s+|\s+$/g, '')
+            };
+            safeSetStorage(STORAGE_KEY_FORM_CONFIG, JSON.stringify(formConfig));
+            showToast('Googleフォーム連携設定を保存しました！');
+            closeSettingsModal();
+            if (currentUser) refreshClassLeaders(false);
+        }
+
+        function clearFormConfig() {
+            formConfig = {
+                formUrl: '', entryClass: '', entryNum: '', entryName: '',
+                entryMatches: '', entryWins: '', entryScore: '', entryDetails: '',
+                sheetCsvUrl: ''
+            };
+            safeRemoveStorage(STORAGE_KEY_FORM_CONFIG);
+            openSettingsModal();
+            showToast('連携設定をクリアしました');
+        }
+
+        function copyShareableConfigUrl() {
+            var currentUrl = normalizeFormResponseUrl(document.getElementById('cfg-form-url').value);
+            if (!currentUrl) {
+                showToast('先にフォームURLを入力してください', 'error');
+                return;
+            }
+            var basePageInput = document.getElementById('cfg-base-page-url');
+            var baseUrl = basePageInput ? basePageInput.value.replace(/^\s+|\s+$/g, '') : '';
+            
+            if (!baseUrl || baseUrl.indexOf('file://') === 0 || baseUrl.indexOf('blob:') === 0) {
+                showToast('配布用リンクを作るには、公開したWebページ（https://...）のURLを入力してください', 'error');
+                if (basePageInput) basePageInput.focus();
+                return;
+            }
+
+            var payload = {
+                formUrl: currentUrl,
+                entryClass: normalizeEntryId(document.getElementById('cfg-entry-class').value),
+                entryNum: normalizeEntryId(document.getElementById('cfg-entry-num').value),
+                entryName: normalizeEntryId(document.getElementById('cfg-entry-name').value),
+                entryMatches: normalizeEntryId(document.getElementById('cfg-entry-matches').value),
+                entryWins: normalizeEntryId(document.getElementById('cfg-entry-wins').value),
+                entryScore: normalizeEntryId(document.getElementById('cfg-entry-score').value),
+                entryDetails: normalizeEntryId(document.getElementById('cfg-entry-details').value),
+                sheetCsvUrl: document.getElementById('cfg-sheet-csv-url').value.replace(/^\s+|\s+$/g, '')
+            };
+            var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            var cleanBaseUrl = baseUrl.split('?')[0].split('#')[0];
+            var shareUrl = cleanBaseUrl + '?cfg=' + encodeURIComponent(encoded);
+
+            var resultBox = document.getElementById('share-url-result-box');
+            var outputInput = document.getElementById('share-url-output');
+            resultBox.classList.remove('hidden');
+            outputInput.value = shareUrl;
+            outputInput.focus();
+            outputInput.select();
+
+            try {
+                if (document.execCommand('copy')) {
+                    showToast('設定済みWeb配布用URLをコピーしました！');
+                } else {
+                    showToast('下の枠に表示されたURLをコピーしてください');
+                }
+            } catch (e) {
+                showToast('下の枠に表示されたURLをコピーしてください');
+            }
+        }
+
+        function submitToGoogleForm(isAuto) {
+            loadFormConfig();
+            if (!formConfig.formUrl) {
+                if (!isAuto) {
+                    showToast('先に「教員設定」でGoogleフォームのURLを設定してください', 'error');
+                    openSettingsModal();
+                }
+                return;
+            }
+            if (!currentUser) return;
+
+            var stats = calculateStats();
+            var roster = CLASS_ROSTERS[currentUser.classId] || [];
+
+            var detailLines = [];
+            for (var i = 0; i < roster.length; i++) {
+                var student = roster[i];
+                if (student.num === currentUser.num && student.name === currentUser.name) continue;
+                var rec = appData.records[student.num];
+                if (rec) {
+                    var resMark = rec.result === 'win' ? '勝' : '負';
+                    var fmtStr = rec.format === 'ダブルス' ? '複' : '単';
+                    detailLines.push('[' + student.num + '番 ' + student.name + '] ' + rec.sport + '(' + fmtStr + ') ' + formatScoreSummary(rec) + ' → ' + resMark);
+                }
+            }
+            for (var j = 0; j < appData.freeRecords.length; j++) {
+                var frec = appData.freeRecords[j];
+                var fresMark = frec.result === 'win' ? '勝' : '負';
+                var ffmtStr = frec.format === 'ダブルス' ? '複' : '単';
+                detailLines.push('[Free' + (j + 1) + ': ' + frec.opponentName + '] ' + frec.sport + '(' + ffmtStr + ') ' + formatScoreSummary(frec) + ' → ' + fresMark);
+            }
+            var detailsText = detailLines.length > 0 ? detailLines.join('\n') : '試合記録なし';
+
+            var bodyPairs = [];
+            function addParam(key, val) {
+                if (key) bodyPairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(val)));
+            }
+            addParam(formConfig.entryClass, currentUser.classId);
+            addParam(formConfig.entryNum, currentUser.num);
+            addParam(formConfig.entryName, currentUser.name);
+            addParam(formConfig.entryMatches, stats.totalMatches);
+            addParam(formConfig.entryWins, stats.totalWins);
+            addParam(formConfig.entryScore, stats.totalScore);
+            addParam(formConfig.entryDetails, detailsText);
+
+            var bodyString = bodyPairs.join('&');
+
+            if (window.fetch) {
+                fetch(formConfig.formUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: bodyString
+                }).then(function() {
+                    showToast(isAuto ? '記録を保存し、教員へ自動送信しました！' : (currentUser.classId + ' ' + currentUser.num + '番 ' + currentUser.name + ' の結果を送信しました！'));
+                    setTimeout(function() { refreshClassLeaders(false); }, 1500);
+                }).catch(function() {
+                    showToast('送信に失敗しました。通信環境を確認し「再送信」を押してください', 'error');
+                });
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', formConfig.formUrl, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+                xhr.send(bodyString);
+                showToast(isAuto ? '記録を保存し、教員へ自動送信しました！' : '結果を送信しました！');
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
